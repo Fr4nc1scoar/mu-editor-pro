@@ -1331,6 +1331,20 @@ function initEvents() {
     document.getElementById('btnDeleteSelected').addEventListener('click', deleteSelected);
     document.getElementById('btnDuplicate').addEventListener('click', duplicateSelected);
 
+    // Help modal
+    document.getElementById('btnHelp').addEventListener('click', () => {
+        document.getElementById('modalHelp').style.display = 'flex';
+    });
+    document.getElementById('helpClose').addEventListener('click', () => {
+        document.getElementById('modalHelp').style.display = 'none';
+    });
+    document.getElementById('btnHelpClose').addEventListener('click', () => {
+        document.getElementById('modalHelp').style.display = 'none';
+    });
+    document.getElementById('modalHelp').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
+    });
+
     // Search & Filters
     document.getElementById('searchInput').addEventListener('input', debounce(() => renderTable(), 200));
     document.getElementById('searchClear').addEventListener('click', () => {

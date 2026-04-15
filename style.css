@@ -1309,6 +1309,119 @@ input[type="checkbox"] {
     60% { transform: scale(1); }
 }
 
+/* ─── Help Modal ─── */
+.modal-help {
+    width: 640px;
+    max-height: 85vh;
+}
+
+.help-body {
+    padding: 16px 20px !important;
+}
+
+.help-section {
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.help-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.help-section h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 8px;
+}
+
+.help-section p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.help-section ol,
+.help-section ul {
+    padding-left: 20px;
+    margin-bottom: 8px;
+}
+
+.help-section li {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+
+.help-section li code {
+    background: var(--bg-tertiary);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--cyan);
+}
+
+.help-tip {
+    padding: 8px 12px;
+    background: var(--gold-dim);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: 12px;
+    color: var(--gold);
+    margin-top: 8px;
+}
+
+.help-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0;
+}
+
+.help-table td {
+    padding: 6px 10px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+}
+
+.help-table tr:last-child td {
+    border-bottom: none;
+}
+
+.help-shortcuts td:first-child {
+    white-space: nowrap;
+    width: 180px;
+}
+
+kbd {
+    display: inline-block;
+    padding: 2px 7px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-default);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-primary);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.help-path {
+    display: block;
+    padding: 8px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--cyan);
+    margin: 6px 0;
+}
+
 /* ─── Responsive ─── */
 @media (max-width: 900px) {
     #toolbar { flex-direction: column; align-items: stretch; }

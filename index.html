@@ -102,6 +102,10 @@
                     <option value="all">Todos los mapas</option>
                 </select>
             </div>
+            <button class="btn btn-outline" id="btnHelp" title="Instrucciones de uso">
+                <span class="btn-icon">❓</span>
+                <span class="btn-label">Ayuda</span>
+            </button>
         </div>
     </nav>
 
@@ -347,6 +351,125 @@
     <footer id="app-footer">
         <span>Creado con <span class="heart">❤️</span> por <a href="https://picodeweb.vercel.app" target="_blank" rel="noopener"><strong>Picode</strong></a></span>
     </footer>
+    <!-- ═══════════════════════ MODAL: HELP ═══════════════════════ -->
+    <div class="modal-overlay" id="modalHelp" style="display:none">
+        <div class="modal modal-help">
+            <div class="modal-header">
+                <h3>📖 Instrucciones de Uso</h3>
+                <button class="modal-close" id="helpClose">✕</button>
+            </div>
+            <div class="modal-body help-body">
+
+                <div class="help-section">
+                    <h4>🎮 ¿Qué es MuEditor Pro?</h4>
+                    <p>Editor visual para los archivos <strong>MonsterSetBase</strong> de tu servidor MU Online Season 6. Te permite agregar, editar y eliminar monstruos, NPCs y spots de cada mapa de forma cómoda.</p>
+                </div>
+
+                <div class="help-section">
+                    <h4>📂 Paso 1 — Importar un archivo</h4>
+                    <ol>
+                        <li>Click en <strong>📂 Importar</strong></li>
+                        <li>Selecciona el archivo del mapa que quieres editar, por ejemplo: <code>000 - Lorencia.txt</code></li>
+                        <li>Los archivos están en la carpeta del servidor: <code>MuServer\Data\MonsterSetBase\</code></li>
+                        <li>También puedes importar archivos vacíos (como Stadium) para crear spawns desde cero</li>
+                    </ol>
+                    <div class="help-tip">💡 El editor recuerda la ubicación del archivo original. Al guardar, se sobreescribe directamente.</div>
+                </div>
+
+                <div class="help-section">
+                    <h4>➕ Paso 2 — Agregar Spawns</h4>
+                    <ol>
+                        <li>Click en <strong>➕ Agregar Spawn</strong></li>
+                        <li>Selecciona el <strong>tipo de spawn</strong>:</li>
+                    </ol>
+                    <table class="help-table">
+                        <tr>
+                            <td><span class="section-badge section-badge-0">0</span></td>
+                            <td><strong>🛡️ NPC</strong></td>
+                            <td>Posición fija — Merchants, guards, trainers</td>
+                        </tr>
+                        <tr>
+                            <td><span class="section-badge section-badge-1">1</span></td>
+                            <td><strong>👾 Spot</strong></td>
+                            <td>Área + Cantidad — Monstruos que respawnean en una zona</td>
+                        </tr>
+                        <tr>
+                            <td><span class="section-badge section-badge-2">2</span></td>
+                            <td><strong>🐉 Monster</strong></td>
+                            <td>Posición fija — Monstruos individuales, bosses</td>
+                        </tr>
+                    </table>
+                    <ol start="3">
+                        <li>Busca el monstruo por <strong>nombre o ID</strong>, o navega la lista completa</li>
+                        <li>Selecciona el <strong>mapa</strong>, configura coordenadas y dirección</li>
+                        <li>Click <strong>💾 Guardar Spawn</strong></li>
+                    </ol>
+                </div>
+
+                <div class="help-section">
+                    <h4>✏️ Paso 3 — Editar o Eliminar</h4>
+                    <ul>
+                        <li><strong>✏️ Editar</strong>: Click en el lápiz de la fila, o doble-click en la fila</li>
+                        <li><strong>🗑️ Eliminar</strong>: Click en la papelera, o selecciona varios y click "Eliminar"</li>
+                        <li><strong>📋 Duplicar</strong>: Crea una copia del spawn seleccionado</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h4>💾 Paso 4 — Guardar</h4>
+                    <ul>
+                        <li>Si importaste un archivo: <strong>💾 Guardar</strong> sobreescribe el archivo original directamente</li>
+                        <li>Si creaste desde cero: <strong>💾 Descargar</strong> genera el archivo con el nombre del mapa</li>
+                        <li>El archivo se guarda con el formato correcto para tu servidor</li>
+                    </ul>
+                    <div class="help-tip">💡 Usa Chrome o Edge para que el guardado directo funcione.</div>
+                </div>
+
+                <div class="help-section">
+                    <h4>🔍 Buscar y Filtrar</h4>
+                    <ul>
+                        <li><strong>Buscar</strong>: Escribe nombre, ID o coordenadas en la barra de búsqueda</li>
+                        <li><strong>Filtrar por sección</strong>: Ver solo NPCs, Spots o Monsters</li>
+                        <li><strong>Filtrar por mapa</strong>: Ver solo un mapa específico</li>
+                        <li><strong>Ordenar</strong>: Click en las cabeceras de columna (Sec, Mob ID, Nombre, etc.)</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h4>⌨️ Atajos de Teclado</h4>
+                    <table class="help-table help-shortcuts">
+                        <tr><td><kbd>Ctrl</kbd> + <kbd>N</kbd></td><td>Nuevo spawn</td></tr>
+                        <tr><td><kbd>Ctrl</kbd> + <kbd>O</kbd></td><td>Importar archivo</td></tr>
+                        <tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td>Guardar / Exportar</td></tr>
+                        <tr><td><kbd>Esc</kbd></td><td>Cerrar modal</td></tr>
+                        <tr><td><kbd>Doble click</kbd></td><td>Editar un spawn</td></tr>
+                    </table>
+                </div>
+
+                <div class="help-section">
+                    <h4>📝 Vista Previa</h4>
+                    <p>Click en <strong>📝 Vista Previa</strong> para ver el archivo generado en formato texto, tal como lo leerá el servidor. Puedes copiar el contenido con el botón 📋.</p>
+                </div>
+
+                <div class="help-section">
+                    <h4>📁 Archivos del Servidor</h4>
+                    <p>Los archivos MonsterSetBase se encuentran en:</p>
+                    <code class="help-path">MuServer\Data\MonsterSetBase\</code>
+                    <p>Cada archivo corresponde a un mapa. Ejemplo:</p>
+                    <ul>
+                        <li><code>000 - Lorencia.txt</code> → Lorencia</li>
+                        <li><code>001 - Dungeon.txt</code> → Dungeon</li>
+                        <li><code>006 - Stadium.txt</code> → Stadium</li>
+                        <li><code>030 - Castle Siege.txt</code> → Castle Siege</li>
+                    </ul>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-accent" id="btnHelpClose">👍 Entendido</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ═══════════════════════ TOAST CONTAINER ═══════════════════════ -->
     <div id="toastContainer" class="toast-container"></div>
