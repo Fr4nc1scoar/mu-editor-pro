@@ -2219,9 +2219,6 @@ function renderBossDropUI() {
     document.getElementById('bossDropWelcome').style.display = hasData ? 'none' : 'flex';
     const editor = document.getElementById('bossDropEditor');
     editor.style.display = hasData ? 'flex' : 'none';
-    editor.style.flexDirection = 'column';
-    editor.style.flex = '1';
-    editor.style.overflow = 'hidden';
 
     if (!hasData) return;
 
