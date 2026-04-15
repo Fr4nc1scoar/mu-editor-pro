@@ -17,7 +17,7 @@
                 <div class="logo-icon">⚔</div>
                 <div class="logo-text">
                     <h1>MuEditor <span class="accent">Pro</span></h1>
-                    <span class="version">Season 6 • MonsterSetBase</span>
+                    <span class="version">Season 6 • Server Editor</span>
                 </div>
             </div>
         </div>
@@ -50,6 +50,15 @@
             </div>
         </div>
     </header>
+
+    <!-- ═══════════════════════ TABS ═══════════════════════ -->
+    <div id="editorTabs" class="editor-tabs">
+        <button class="editor-tab active" data-tab="spawns">🗺️ Spawns</button>
+        <button class="editor-tab" data-tab="monster-stats">⚔️ Monster Stats</button>
+    </div>
+
+    <!-- ═══════════════════════ TAB: SPAWNS ═══════════════════════ -->
+    <div id="tabSpawns" class="tab-content active">
 
     <!-- ═══════════════════════ TOOLBAR ═══════════════════════ -->
     <nav id="toolbar">
@@ -351,7 +360,234 @@
     <footer id="app-footer">
         <span>Creado con <span class="heart">❤️</span> por <a href="https://picodeweb.vercel.app" target="_blank" rel="noopener"><strong>Picode</strong></a></span>
     </footer>
-    <!-- ═══════════════════════ MODAL: HELP ═══════════════════════ -->
+
+    </div><!-- END tabSpawns -->
+
+    <!-- ═══════════════════════ TAB: MONSTER STATS ═══════════════════════ -->
+    <div id="tabMonsterStats" class="tab-content" style="display:none">
+
+        <!-- Toolbar Monster Stats -->
+        <nav id="toolbarMonster" class="toolbar-monster">
+            <div class="toolbar-group">
+                <button class="btn btn-primary" id="btnImportMonster" title="Importar Monster.txt">
+                    <span class="btn-icon">📂</span>
+                    <span class="btn-label">Importar Monster.txt</span>
+                </button>
+                <button class="btn btn-success" id="btnSaveMonster" title="Guardar cambios">
+                    <span class="btn-icon">💾</span>
+                    <span class="btn-label" id="monsterSaveLabel">Guardar</span>
+                </button>
+                <div class="toolbar-divider"></div>
+                <button class="btn btn-accent" id="btnAddMonster" title="Agregar monstruo">
+                    <span class="btn-icon">➕</span>
+                    <span class="btn-label">Agregar</span>
+                </button>
+            </div>
+            <div class="toolbar-group">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="monsterSearchInput" placeholder="Buscar por nombre o ID...">
+                    <button class="search-clear" id="monsterSearchClear" title="Limpiar">✕</button>
+                </div>
+                <div class="filter-group">
+                    <select id="filterMonsterLevel" title="Filtrar por nivel">
+                        <option value="all">Todos los niveles</option>
+                        <option value="0-20">Nivel 1-20 (Bajo)</option>
+                        <option value="21-50">Nivel 21-50 (Medio)</option>
+                        <option value="51-80">Nivel 51-80 (Alto)</option>
+                        <option value="81-150">Nivel 81+ (Elite)</option>
+                    </select>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Monster Stats -->
+        <main id="monsterMainContent" class="monster-main">
+            <!-- Welcome Screen -->
+            <div id="monsterWelcome" class="welcome-screen">
+                <div class="welcome-content">
+                    <div class="welcome-icon">⚔️</div>
+                    <h2>Monster Stats Editor</h2>
+                    <p>Edita HP, daño, defensa, tiempo de respawn y más de cada monstruo.</p>
+                    <p class="welcome-path">📁 Archivo: <code>MuServer\Data\Monster\Monster.txt</code></p>
+                    <div class="welcome-actions">
+                        <button class="btn btn-primary btn-lg" id="btnMonsterWelcomeImport">📂 Importar Monster.txt</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div id="monsterTableContainer" class="table-container" style="display:none">
+                <div class="table-header-bar">
+                    <span id="monsterTableCount">0 monstruos</span>
+                </div>
+                <div class="table-scroll">
+                    <table id="monsterTable">
+                        <thead>
+                            <tr>
+                                <th class="col-id sortable-m" data-sort-m="index">ID</th>
+                                <th class="col-name sortable-m" data-sort-m="name">Nombre</th>
+                                <th class="col-num sortable-m" data-sort-m="level">Lvl</th>
+                                <th class="col-num sortable-m" data-sort-m="maxLife">HP</th>
+                                <th class="col-num">Daño Min</th>
+                                <th class="col-num">Daño Max</th>
+                                <th class="col-num">Def</th>
+                                <th class="col-num">M.Def</th>
+                                <th class="col-num sortable-m" data-sort-m="attackSpeed">Atk Spd</th>
+                                <th class="col-num sortable-m" data-sort-m="moveSpeed">Mov Spd</th>
+                                <th class="col-regen sortable-m" data-sort-m="regenTime">⏱️ Respawn</th>
+                                <th class="col-num">ItemRate</th>
+                                <th class="col-num">Zen</th>
+                                <th class="col-actions-m">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monsterTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer for Monster Stats -->
+        <footer id="app-footer-m" class="app-footer-clone">
+            <span>Creado con <span class="heart">❤️</span> por <a href="https://picodeweb.vercel.app" target="_blank" rel="noopener"><strong>Picode</strong></a></span>
+        </footer>
+    </div><!-- END tabMonsterStats -->
+
+    <!-- ═══════════════════════ MODAL: EDIT MONSTER ═══════════════════════ -->
+    <div class="modal-overlay" id="modalMonster" style="display:none">
+        <div class="modal modal-monster">
+            <div class="modal-header">
+                <h3 id="monsterModalTitle">✏️ Editar Monstruo</h3>
+                <button class="modal-close" id="monsterModalClose">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="monster-edit-grid">
+                    <div class="field-group">
+                        <label>ID</label>
+                        <input type="number" id="mEditIndex" readonly class="field-readonly">
+                    </div>
+                    <div class="field-group">
+                        <label>Nombre</label>
+                        <input type="text" id="mEditName">
+                    </div>
+                    <div class="field-group">
+                        <label>Level</label>
+                        <input type="number" id="mEditLevel" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>❤️ HP (MaxLife)</label>
+                        <input type="number" id="mEditMaxLife" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>MaxMana</label>
+                        <input type="number" id="mEditMaxMana" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>⚔️ Daño Mínimo</label>
+                        <input type="number" id="mEditDmgMin" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>⚔️ Daño Máximo</label>
+                        <input type="number" id="mEditDmgMax" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>🛡️ Defensa</label>
+                        <input type="number" id="mEditDefense" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>🔮 Def. Mágica</label>
+                        <input type="number" id="mEditMagicDef" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>AttackRate</label>
+                        <input type="number" id="mEditAtkRate" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>DefenseRate</label>
+                        <input type="number" id="mEditDefRate" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>MoveRange</label>
+                        <input type="number" id="mEditMoveRange" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>AttackType</label>
+                        <input type="number" id="mEditAtkType" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>AttackRange</label>
+                        <input type="number" id="mEditAtkRange" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>ViewRange</label>
+                        <input type="number" id="mEditViewRange" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>🏃 MoveSpeed</label>
+                        <input type="number" id="mEditMoveSpd" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>⚡ AttackSpeed</label>
+                        <input type="number" id="mEditAtkSpd" min="0">
+                    </div>
+                    <div class="field-group field-highlight">
+                        <label>⏱️ RegenTime (seg)</label>
+                        <input type="number" id="mEditRegenTime" min="0">
+                        <span class="field-hint" id="regenHint">= 10 seg</span>
+                    </div>
+                    <div class="field-group">
+                        <label>Attribute</label>
+                        <input type="number" id="mEditAttribute" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>📦 ItemRate</label>
+                        <input type="number" id="mEditItemRate" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>💰 MoneyRate (Zen)</label>
+                        <input type="number" id="mEditMoneyRate" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>MaxItemLevel</label>
+                        <input type="number" id="mEditMaxItemLvl" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>MonsterSkill</label>
+                        <input type="number" id="mEditMonsterSkill" min="0">
+                    </div>
+                    <div class="field-group">
+                        <label>Rate</label>
+                        <input type="number" id="mEditRate" min="0">
+                    </div>
+                </div>
+                <div class="monster-resist-row">
+                    <h4>🔥 Resistencias</h4>
+                    <div class="resist-grid">
+                        <div class="field-group">
+                            <label>🔥 Fuego</label>
+                            <input type="number" id="mEditRes1" min="0" max="255">
+                        </div>
+                        <div class="field-group">
+                            <label>❄️ Hielo</label>
+                            <input type="number" id="mEditRes2" min="0" max="255">
+                        </div>
+                        <div class="field-group">
+                            <label>⚡ Rayo</label>
+                            <input type="number" id="mEditRes3" min="0" max="255">
+                        </div>
+                        <div class="field-group">
+                            <label>☠️ Veneno</label>
+                            <input type="number" id="mEditRes4" min="0" max="255">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="btnCancelMonster">Cancelar</button>
+                <button class="btn btn-accent" id="btnSaveMonsterEdit">💾 Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
     <div class="modal-overlay" id="modalHelp" style="display:none">
         <div class="modal modal-help">
             <div class="modal-header">

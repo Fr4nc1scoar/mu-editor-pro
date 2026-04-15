@@ -1640,6 +1640,7 @@ function init() {
     populateMapFilter();
     renderTable();
     initEvents();
+    initMonsterStats();
 
     if (state.spawns.length > 0) {
         showToast(`📂 Sesión restaurada: ${state.spawns.length} spawns`, 'info');
@@ -1648,3 +1649,437 @@ function init() {
 
 // Start
 document.addEventListener('DOMContentLoaded', init);
+
+// ═══════════════════════════════════════════════════════════════════════
+// MONSTER STATS EDITOR
+// ═══════════════════════════════════════════════════════════════════════
+
+const monsterState = {
+    monsters: [],
+    fileHandle: null,
+    fileName: null,
+    modified: false,
+    sortField: 'index',
+    sortDir: 'asc',
+    editingIndex: null,
+};
+
+// ─────────────────────────────────────────
+// TAB SWITCHING
+// ─────────────────────────────────────────
+function initTabs() {
+    document.querySelectorAll('.editor-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = tab.dataset.tab;
+
+            // Update tab buttons
+            document.querySelectorAll('.editor-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            // Show/hide content
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+
+            if (target === 'spawns') {
+                document.getElementById('tabSpawns').classList.add('active');
+            } else if (target === 'monster-stats') {
+                document.getElementById('tabMonsterStats').classList.add('active');
+            }
+        });
+    });
+}
+
+// ─────────────────────────────────────────
+// PARSE Monster.txt
+// ─────────────────────────────────────────
+function parseMonsterTxt(text) {
+    const monsters = [];
+    const lines = text.split('\n');
+
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('//')) continue;
+
+        // Extract name in quotes
+        const nameMatch = trimmed.match(/"([^"]+)"/);
+        if (!nameMatch) continue;
+
+        const name = nameMatch[1];
+        const beforeName = trimmed.substring(0, trimmed.indexOf('"')).trim();
+        const afterName = trimmed.substring(trimmed.lastIndexOf('"') + 1).trim();
+
+        const pre = beforeName.split(/\s+/).filter(p => p.length > 0);
+        const post = afterName.split(/\s+/).filter(p => p.length > 0);
+
+        if (pre.length < 2 || post.length < 23) continue;
+
+        monsters.push({
+            index: parseInt(pre[0]),
+            rate: parseInt(pre[1]),
+            name: name,
+            level: parseInt(post[0]),
+            maxLife: parseInt(post[1]),
+            maxMana: parseInt(post[2]),
+            damageMin: parseInt(post[3]),
+            damageMax: parseInt(post[4]),
+            defense: parseInt(post[5]),
+            magicDefense: parseInt(post[6]),
+            attackRate: parseInt(post[7]),
+            defenseRate: parseInt(post[8]),
+            moveRange: parseInt(post[9]),
+            attackType: parseInt(post[10]),
+            attackRange: parseInt(post[11]),
+            viewRange: parseInt(post[12]),
+            moveSpeed: parseInt(post[13]),
+            attackSpeed: parseInt(post[14]),
+            regenTime: parseInt(post[15]),
+            attribute: parseInt(post[16]),
+            itemRate: parseInt(post[17]),
+            moneyRate: parseInt(post[18]),
+            maxItemLevel: parseInt(post[19]),
+            monsterSkill: parseInt(post[20]),
+            resistance1: parseInt(post[21]),
+            resistance2: parseInt(post[22]),
+            resistance3: parseInt(post[23]),
+            resistance4: parseInt(post[24]) || 0,
+        });
+    }
+
+    return monsters;
+}
+
+// ─────────────────────────────────────────
+// GENERATE Monster.txt
+// ─────────────────────────────────────────
+function generateMonsterTxt(monsters) {
+    let output = '//Index   Rate   Name                                 Level   MaxLife   MaxMana   DamageMin   DamageMax   Defense   MagicDefense   AttackRate   DefenseRate   MoveRange   AttackType   AttackRange   ViewRange   MoveSpeed   AttackSpeed   RegenTime   Attribute   ItemRate   MoneyRate   MaxItemLevel   MonsterSkill   Resistance1   Resistance2   Resistance3   Resistance4\n';
+
+    for (const m of monsters) {
+        const idx = String(m.index).padStart(1);
+        const rate = String(m.rate).padStart(1);
+        const name = `"${m.name}"`;
+        const namePad = name.padEnd(37);
+
+        output += `${idx.padEnd(10)}${rate.padEnd(7)}${namePad}${String(m.level).padEnd(8)}${String(m.maxLife).padEnd(10)}${String(m.maxMana).padEnd(10)}${String(m.damageMin).padEnd(12)}${String(m.damageMax).padEnd(12)}${String(m.defense).padEnd(10)}${String(m.magicDefense).padEnd(15)}${String(m.attackRate).padEnd(13)}${String(m.defenseRate).padEnd(14)}${String(m.moveRange).padEnd(12)}${String(m.attackType).padEnd(13)}${String(m.attackRange).padEnd(14)}${String(m.viewRange).padEnd(12)}${String(m.moveSpeed).padEnd(10)}${String(m.attackSpeed).padEnd(14)}${String(m.regenTime).padEnd(12)}${String(m.attribute).padEnd(12)}${String(m.itemRate).padEnd(11)}${String(m.moneyRate).padEnd(10)}${String(m.maxItemLevel).padEnd(15)}${String(m.monsterSkill).padEnd(15)}${String(m.resistance1).padEnd(14)}${String(m.resistance2).padEnd(14)}${String(m.resistance3).padEnd(14)}${String(m.resistance4)}\n`;
+    }
+
+    return output;
+}
+
+// ─────────────────────────────────────────
+// FORMAT REGEN TIME
+// ─────────────────────────────────────────
+function formatRegenTime(seconds) {
+    if (seconds < 60) return seconds + 's';
+    if (seconds < 3600) return Math.round(seconds / 60) + 'min';
+    return Math.round(seconds / 3600) + 'h';
+}
+
+function regenClass(seconds) {
+    if (seconds <= 30) return 'regen-fast';
+    if (seconds <= 600) return 'regen-medium';
+    return 'regen-slow';
+}
+
+// ─────────────────────────────────────────
+// RENDER MONSTER TABLE
+// ─────────────────────────────────────────
+function getFilteredMonsters() {
+    let filtered = [...monsterState.monsters];
+
+    // Search
+    const search = document.getElementById('monsterSearchInput').value.toLowerCase().trim();
+    if (search) {
+        filtered = filtered.filter(m =>
+            m.name.toLowerCase().includes(search) ||
+            String(m.index).includes(search)
+        );
+    }
+
+    // Level filter
+    const lvlFilter = document.getElementById('filterMonsterLevel').value;
+    if (lvlFilter !== 'all') {
+        const [min, max] = lvlFilter.split('-').map(Number);
+        filtered = filtered.filter(m => m.level >= min && m.level <= max);
+    }
+
+    // Sort
+    const field = monsterState.sortField;
+    const dir = monsterState.sortDir === 'asc' ? 1 : -1;
+    filtered.sort((a, b) => {
+        if (typeof a[field] === 'string') return a[field].localeCompare(b[field]) * dir;
+        return (a[field] - b[field]) * dir;
+    });
+
+    return filtered;
+}
+
+function renderMonsterTable() {
+    const tbody = document.getElementById('monsterTableBody');
+    const filtered = getFilteredMonsters();
+    const hasData = monsterState.monsters.length > 0;
+
+    document.getElementById('monsterWelcome').style.display = hasData ? 'none' : 'flex';
+    document.getElementById('monsterTableContainer').style.display = hasData ? 'flex' : 'none';
+
+    document.getElementById('monsterTableCount').textContent = `${filtered.length} de ${monsterState.monsters.length} monstruos`;
+
+    tbody.innerHTML = '';
+
+    for (const m of filtered) {
+        const tr = document.createElement('tr');
+        tr.dataset.idx = m.index;
+        tr.innerHTML = `
+            <td class="col-id">${m.index}</td>
+            <td class="col-name"><strong>${m.name}</strong></td>
+            <td class="col-num">${m.level}</td>
+            <td class="col-num">${m.maxLife.toLocaleString()}</td>
+            <td class="col-num">${m.damageMin}</td>
+            <td class="col-num">${m.damageMax}</td>
+            <td class="col-num">${m.defense}</td>
+            <td class="col-num">${m.magicDefense}</td>
+            <td class="col-num">${m.attackSpeed}</td>
+            <td class="col-num">${m.moveSpeed}</td>
+            <td class="col-regen"><span class="regen-badge ${regenClass(m.regenTime)}">${formatRegenTime(m.regenTime)}</span></td>
+            <td class="col-num">${m.itemRate}</td>
+            <td class="col-num">${m.moneyRate}</td>
+            <td class="col-actions-m">
+                <button class="row-btn btn-edit" title="Editar" data-action-m="edit">✏️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    }
+}
+
+// ─────────────────────────────────────────
+// MONSTER EDIT MODAL
+// ─────────────────────────────────────────
+function openMonsterEdit(index) {
+    const m = monsterState.monsters.find(x => x.index === index);
+    if (!m) return;
+
+    monsterState.editingIndex = index;
+    document.getElementById('monsterModalTitle').textContent = `✏️ Editar: ${m.name} (ID ${m.index})`;
+
+    document.getElementById('mEditIndex').value = m.index;
+    document.getElementById('mEditRate').value = m.rate;
+    document.getElementById('mEditName').value = m.name;
+    document.getElementById('mEditLevel').value = m.level;
+    document.getElementById('mEditMaxLife').value = m.maxLife;
+    document.getElementById('mEditMaxMana').value = m.maxMana;
+    document.getElementById('mEditDmgMin').value = m.damageMin;
+    document.getElementById('mEditDmgMax').value = m.damageMax;
+    document.getElementById('mEditDefense').value = m.defense;
+    document.getElementById('mEditMagicDef').value = m.magicDefense;
+    document.getElementById('mEditAtkRate').value = m.attackRate;
+    document.getElementById('mEditDefRate').value = m.defenseRate;
+    document.getElementById('mEditMoveRange').value = m.moveRange;
+    document.getElementById('mEditAtkType').value = m.attackType;
+    document.getElementById('mEditAtkRange').value = m.attackRange;
+    document.getElementById('mEditViewRange').value = m.viewRange;
+    document.getElementById('mEditMoveSpd').value = m.moveSpeed;
+    document.getElementById('mEditAtkSpd').value = m.attackSpeed;
+    document.getElementById('mEditRegenTime').value = m.regenTime;
+    document.getElementById('mEditAttribute').value = m.attribute;
+    document.getElementById('mEditItemRate').value = m.itemRate;
+    document.getElementById('mEditMoneyRate').value = m.moneyRate;
+    document.getElementById('mEditMaxItemLvl').value = m.maxItemLevel;
+    document.getElementById('mEditMonsterSkill').value = m.monsterSkill;
+    document.getElementById('mEditRes1').value = m.resistance1;
+    document.getElementById('mEditRes2').value = m.resistance2;
+    document.getElementById('mEditRes3').value = m.resistance3;
+    document.getElementById('mEditRes4').value = m.resistance4;
+
+    updateRegenHint();
+    document.getElementById('modalMonster').style.display = 'flex';
+}
+
+function closeMonsterEdit() {
+    document.getElementById('modalMonster').style.display = 'none';
+    monsterState.editingIndex = null;
+}
+
+function saveMonsterEdit() {
+    const idx = monsterState.editingIndex;
+    const m = monsterState.monsters.find(x => x.index === idx);
+    if (!m) return;
+
+    m.rate = parseInt(document.getElementById('mEditRate').value) || 1;
+    m.name = document.getElementById('mEditName').value;
+    m.level = parseInt(document.getElementById('mEditLevel').value) || 0;
+    m.maxLife = parseInt(document.getElementById('mEditMaxLife').value) || 0;
+    m.maxMana = parseInt(document.getElementById('mEditMaxMana').value) || 0;
+    m.damageMin = parseInt(document.getElementById('mEditDmgMin').value) || 0;
+    m.damageMax = parseInt(document.getElementById('mEditDmgMax').value) || 0;
+    m.defense = parseInt(document.getElementById('mEditDefense').value) || 0;
+    m.magicDefense = parseInt(document.getElementById('mEditMagicDef').value) || 0;
+    m.attackRate = parseInt(document.getElementById('mEditAtkRate').value) || 0;
+    m.defenseRate = parseInt(document.getElementById('mEditDefRate').value) || 0;
+    m.moveRange = parseInt(document.getElementById('mEditMoveRange').value) || 0;
+    m.attackType = parseInt(document.getElementById('mEditAtkType').value) || 0;
+    m.attackRange = parseInt(document.getElementById('mEditAtkRange').value) || 0;
+    m.viewRange = parseInt(document.getElementById('mEditViewRange').value) || 0;
+    m.moveSpeed = parseInt(document.getElementById('mEditMoveSpd').value) || 0;
+    m.attackSpeed = parseInt(document.getElementById('mEditAtkSpd').value) || 0;
+    m.regenTime = parseInt(document.getElementById('mEditRegenTime').value) || 0;
+    m.attribute = parseInt(document.getElementById('mEditAttribute').value) || 0;
+    m.itemRate = parseInt(document.getElementById('mEditItemRate').value) || 0;
+    m.moneyRate = parseInt(document.getElementById('mEditMoneyRate').value) || 0;
+    m.maxItemLevel = parseInt(document.getElementById('mEditMaxItemLvl').value) || 0;
+    m.monsterSkill = parseInt(document.getElementById('mEditMonsterSkill').value) || 0;
+    m.resistance1 = parseInt(document.getElementById('mEditRes1').value) || 0;
+    m.resistance2 = parseInt(document.getElementById('mEditRes2').value) || 0;
+    m.resistance3 = parseInt(document.getElementById('mEditRes3').value) || 0;
+    m.resistance4 = parseInt(document.getElementById('mEditRes4').value) || 0;
+
+    monsterState.modified = true;
+    renderMonsterTable();
+    closeMonsterEdit();
+    showToast(`✅ ${m.name} actualizado`, 'success');
+}
+
+function updateRegenHint() {
+    const val = parseInt(document.getElementById('mEditRegenTime').value) || 0;
+    const hint = document.getElementById('regenHint');
+    if (val < 60) hint.textContent = `= ${val} seg`;
+    else if (val < 3600) hint.textContent = `= ${Math.round(val/60)} min`;
+    else hint.textContent = `= ${(val/3600).toFixed(1)} horas`;
+}
+
+// ─────────────────────────────────────────
+// IMPORT / EXPORT Monster.txt
+// ─────────────────────────────────────────
+async function importMonsterTxt() {
+    try {
+        if (window.showOpenFilePicker) {
+            const [handle] = await window.showOpenFilePicker({
+                types: [{ description: 'Monster.txt', accept: { 'text/plain': ['.txt'] } }],
+            });
+            const file = await handle.getFile();
+            const text = await file.text();
+            monsterState.monsters = parseMonsterTxt(text);
+            monsterState.fileHandle = handle;
+            monsterState.fileName = file.name;
+            monsterState.modified = false;
+            renderMonsterTable();
+            showToast(`✅ ${monsterState.monsters.length} monstruos cargados desde ${file.name}`, 'success');
+            showToast('🔗 Conectado: guardar sobreescribirá el archivo original', 'success');
+            document.getElementById('monsterSaveLabel').textContent = 'Guardar';
+        } else {
+            // Fallback
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.txt';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    monsterState.monsters = parseMonsterTxt(ev.target.result);
+                    monsterState.fileName = file.name;
+                    monsterState.modified = false;
+                    renderMonsterTable();
+                    showToast(`✅ ${monsterState.monsters.length} monstruos cargados`, 'success');
+                    document.getElementById('monsterSaveLabel').textContent = 'Descargar';
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+    } catch (err) {
+        if (err.name !== 'AbortError') console.error(err);
+    }
+}
+
+async function saveMonsterTxt() {
+    if (monsterState.monsters.length === 0) {
+        showToast('No hay datos para guardar', 'warning');
+        return;
+    }
+
+    const content = generateMonsterTxt(monsterState.monsters);
+
+    if (monsterState.fileHandle) {
+        try {
+            const writable = await monsterState.fileHandle.createWritable();
+            await writable.write(content);
+            await writable.close();
+            monsterState.modified = false;
+            showToast(`💾 Guardado directo: ${monsterState.fileHandle.name}`, 'success');
+            return;
+        } catch (err) {
+            console.warn('Direct save failed', err);
+        }
+    }
+
+    // Fallback download
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = monsterState.fileName || 'Monster.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`💾 Descargado: ${a.download}`, 'success');
+}
+
+// ─────────────────────────────────────────
+// INIT MONSTER STATS
+// ─────────────────────────────────────────
+function initMonsterStats() {
+    initTabs();
+
+    // Import buttons
+    document.getElementById('btnImportMonster').addEventListener('click', importMonsterTxt);
+    document.getElementById('btnMonsterWelcomeImport').addEventListener('click', importMonsterTxt);
+
+    // Save
+    document.getElementById('btnSaveMonster').addEventListener('click', saveMonsterTxt);
+
+    // Search & Filter
+    document.getElementById('monsterSearchInput').addEventListener('input', debounce(() => renderMonsterTable(), 200));
+    document.getElementById('monsterSearchClear').addEventListener('click', () => {
+        document.getElementById('monsterSearchInput').value = '';
+        renderMonsterTable();
+    });
+    document.getElementById('filterMonsterLevel').addEventListener('change', renderMonsterTable);
+
+    // Sort
+    document.querySelectorAll('th.sortable-m').forEach(th => {
+        th.addEventListener('click', () => {
+            const field = th.dataset.sortM;
+            if (monsterState.sortField === field) {
+                monsterState.sortDir = monsterState.sortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                monsterState.sortField = field;
+                monsterState.sortDir = 'asc';
+            }
+            renderMonsterTable();
+        });
+    });
+
+    // Table row events
+    document.getElementById('monsterTableBody').addEventListener('click', (e) => {
+        const tr = e.target.closest('tr');
+        if (!tr) return;
+        const idx = parseInt(tr.dataset.idx);
+        const action = e.target.closest('[data-action-m]')?.dataset.actionM;
+        if (action === 'edit') openMonsterEdit(idx);
+    });
+
+    document.getElementById('monsterTableBody').addEventListener('dblclick', (e) => {
+        const tr = e.target.closest('tr');
+        if (!tr) return;
+        openMonsterEdit(parseInt(tr.dataset.idx));
+    });
+
+    // Edit modal
+    document.getElementById('monsterModalClose').addEventListener('click', closeMonsterEdit);
+    document.getElementById('btnCancelMonster').addEventListener('click', closeMonsterEdit);
+    document.getElementById('btnSaveMonsterEdit').addEventListener('click', saveMonsterEdit);
+    document.getElementById('modalMonster').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeMonsterEdit();
+    });
+
+    // Regen hint live update
+    document.getElementById('mEditRegenTime').addEventListener('input', updateRegenHint);
+}
