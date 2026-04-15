@@ -487,13 +487,9 @@
                 <div class="welcome-content">
                     <div class="welcome-icon">🎁</div>
                     <h2>Event Bags (Cajas y Bosses)</h2>
-                    <p>Configura qué items sueltan las cajas (ej. Box of Kundun, Box of Ribbon) y los Bosses (Kundun, Red Dragon, Selupan).</p>
-                    <div style="background: var(--bg-tertiary); padding: 12px; border-radius: 8px; font-size: 13px; text-align: left; margin: 15px 0;">
-                        <ul style="margin:0; padding-left: 20px; color: var(--text-muted);">
-                            <li><strong>Bosses:</strong> <code>MuServer\Data\EventItemBag\Monster\</code></li>
-                            <li><strong>Cajas e Items Especiales:</strong> <code>MuServer\Data\EventItemBag\Item\</code></li>
-                        </ul>
-                    </div>
+                    <p>Configura qué items sueltan las cajas y los Bosses (Kundun, Red Dragon, etc).</p>
+                    <p class="welcome-path" style="margin-bottom: 5px;">📁 Bosses: <code>MuServer\Data\EventItemBag\Monster\</code></p>
+                    <p class="welcome-path">📁 Cajas: <code>MuServer\Data\EventItemBag\Item\</code></p>
                     <div class="welcome-actions">
                         <button class="btn btn-primary btn-lg" id="btnBossWelcomeImport">📂 Seleccionar archivo .txt</button>
                     </div>
@@ -540,6 +536,11 @@
                             <label>🎆 Fireworks</label>
                             <span class="field-hint">Fuegos artificiales (Sí=1, No=0)</span>
                             <input type="number" id="bdFireworks" min="0" max="1">
+                        </div>
+                        <div class="field-item-bag">
+                            <label>🎒 DropInventory</label>
+                            <span class="field-hint" title="Cae directo al inventario?">Al inventario (Sí=1)</span>
+                            <input type="number" id="bdDropInventory" min="0" max="1">
                         </div>
                     </div>
                 </div>
