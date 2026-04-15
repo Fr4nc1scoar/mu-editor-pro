@@ -1,4 +1,4 @@
-﻿const ITEM_DB = {
+const ITEM_DB = {
     "0-0": "Kris",
     "0-1": "Short Sword",
     "0-10": "Light Saber",
@@ -417,7 +417,7 @@
     "14-107": "Fifth Secromicon Fragment",
     "14-108": "Sixth Secromicon Fragment",
     "14-109": "Complete Secromicon",
-    "14-11": "Box of Luck",
+    "14-11": "Box of Luck / Box of Kundun",
     "14-110": "Sign of Dimensions",
     "14-111": "Mirror of Dimensions",
     "14-112": "Silver Key",
