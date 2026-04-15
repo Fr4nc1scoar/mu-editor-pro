@@ -55,7 +55,7 @@
     <div id="editorTabs" class="editor-tabs">
         <button class="editor-tab active" data-tab="spawns">🗺️ Spawns</button>
         <button class="editor-tab" data-tab="monster-stats">⚔️ Monster Stats</button>
-        <button class="editor-tab" data-tab="boss-drops">🎁 Boss Drops</button>
+        <button class="editor-tab" data-tab="boss-drops">🎁 Event Bags (Cajas/Boss)</button>
     </div>
 
     <!-- ═══════════════════════ TAB: SPAWNS ═══════════════════════ -->
@@ -465,9 +465,9 @@
         <!-- Toolbar Boss Drops -->
         <nav class="toolbar-monster">
             <div class="toolbar-group">
-                <button class="btn btn-primary" id="btnImportBossDrop" title="Importar archivo de boss drop">
+                <button class="btn btn-primary" id="btnImportBossDrop" title="Importar archivo EventItemBag">
                     <span class="btn-icon">📂</span>
-                    <span class="btn-label">Importar Boss Drop</span>
+                    <span class="btn-label">Importar Archivo</span>
                 </button>
                 <button class="btn btn-success" id="btnSaveBossDrop" title="Guardar cambios">
                     <span class="btn-icon">💾</span>
@@ -478,6 +478,14 @@
                     <span class="btn-icon">✕</span>
                     <span class="btn-label">Cerrar</span>
                 </button>
+                <div class="toolbar-divider"></div>
+                <button class="btn btn-outline" id="btnImportItemNames" title="Cargar Item.txt para ver nombres">
+                    <span class="btn-icon">💎</span>
+                    <span class="btn-label">Cargar Nombres (Item.txt)</span>
+                </button>
+            </div>
+            <div class="toolbar-group" style="color: var(--text-muted); font-size: 13px;">
+                💡 Presiona Importar para abrir una caja o boss
             </div>
         </nav>
 
@@ -486,11 +494,16 @@
             <div id="bossDropWelcome" class="welcome-screen">
                 <div class="welcome-content">
                     <div class="welcome-icon">🎁</div>
-                    <h2>Boss Drops Editor</h2>
-                    <p>Edita qué items dropean los bosses: Kundun, Red Dragon, Balgass, etc.</p>
-                    <p class="welcome-path">📁 Carpeta: <code>MuServer\Data\EventItemBag\Monster\</code></p>
+                    <h2>Event Bags (Cajas y Bosses)</h2>
+                    <p>Configura qué items sueltan las cajas (ej. Box of Kundun, Box of Ribbon) y los Bosses (Kundun, Red Dragon, Selupan).</p>
+                    <div style="background: var(--bg-tertiary); padding: 12px; border-radius: 8px; font-size: 13px; text-align: left; margin: 15px 0;">
+                        <ul style="margin:0; padding-left: 20px; color: var(--text-muted);">
+                            <li><strong>Bosses:</strong> <code>MuServer\Data\EventItemBag\Monster\</code></li>
+                            <li><strong>Cajas e Items Especiales:</strong> <code>MuServer\Data\EventItemBag\Item\</code></li>
+                        </ul>
+                    </div>
                     <div class="welcome-actions">
-                        <button class="btn btn-primary btn-lg" id="btnBossWelcomeImport">📂 Importar archivo de Boss</button>
+                        <button class="btn btn-primary btn-lg" id="btnBossWelcomeImport">📂 Seleccionar archivo .txt</button>
                     </div>
                 </div>
             </div>
@@ -499,35 +512,42 @@
             <div id="bossDropEditor" style="display:none; flex:1; flex-direction:column; overflow:hidden;">
                 <!-- Boss Config -->
                 <div class="boss-config-panel">
-                    <h3 id="bossDropTitle" class="boss-title">🎁 Boss</h3>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:12px;">
+                        <div>
+                            <h3 id="bossDropTitle" class="boss-title">🎁 Nombre Event/Boss</h3>
+                            <div style="font-size:12px; color:var(--text-muted);">Configuración general del comportamiento de drop.</div>
+                        </div>
+                    </div>
                     <div class="boss-config-grid">
-                        <div class="field-group">
+                        <div class="field-item-bag">
                             <label>💰 DropZen</label>
+                            <span class="field-hint">Zen q cae con el item (0 = nada)</span>
                             <input type="number" id="bdDropZen" min="0">
                         </div>
-                        <div class="field-group">
+                        <div class="field-item-bag">
                             <label>📦 ItemDropRate</label>
+                            <span class="field-hint">Tasa de éxito (100 = 100%)</span>
                             <input type="number" id="bdItemDropRate" min="0" max="100">
                         </div>
-                        <div class="field-group">
-                            <label>🔢 ItemDropCount</label>
+                        <div class="field-item-bag">
+                            <label>🔢 DropCount</label>
+                            <span class="field-hint">Cant. de items a soltar a la vez</span>
                             <input type="number" id="bdItemDropCount" min="0">
                         </div>
-                        <div class="field-group">
-                            <label>🛡️ SetItemDropRate</label>
+                        <div class="field-item-bag">
+                            <label>🌟 SetItemDrop</label>
+                            <span class="field-hint">Probabilidad de item Accidental</span>
                             <input type="number" id="bdSetItemDropRate" min="0">
                         </div>
-                        <div class="field-group">
-                            <label>ItemDropType</label>
+                        <div class="field-item-bag">
+                            <label>⚙️ DropType</label>
+                            <span class="field-hint" title="0: Suelo, 1: Inventario">Dónde cae (Suelo=0)</span>
                             <input type="number" id="bdItemDropType" min="0">
                         </div>
-                        <div class="field-group">
+                        <div class="field-item-bag">
                             <label>🎆 Fireworks</label>
+                            <span class="field-hint">Fuegos artificiales (Sí=1, No=0)</span>
                             <input type="number" id="bdFireworks" min="0" max="1">
-                        </div>
-                        <div class="field-group">
-                            <label>DropInventory</label>
-                            <input type="number" id="bdDropInventory" min="0">
                         </div>
                     </div>
                 </div>
@@ -543,15 +563,16 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Section</th>
-                                    <th>Type</th>
-                                    <th>Min Lvl</th>
-                                    <th>Max Lvl</th>
+                                    <th>Categoría</th>
+                                    <th>Descripción (Auto)</th>
+                                    <th title="S/T: Section/Type">ID (S-T)</th>
+                                    <th title="Nivel mínimo del item (ej. +9)">Lvl Min</th>
+                                    <th title="Nivel máximo del item (ej. +13)">Lvl Max</th>
                                     <th>Skill</th>
                                     <th>Luck</th>
-                                    <th>Option</th>
-                                    <th>Excellent</th>
-                                    <th>Acciones</th>
+                                    <th title="Daño/Defensa adicional">Option</th>
+                                    <th title="Item Excelente">Excel.</th>
+                                    <th style="width: 100px;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="bossItemTableBody"></tbody>
@@ -574,21 +595,28 @@
                 <button class="modal-close" id="bossItemModalClose">✕</button>
             </div>
             <div class="modal-body">
+                <div id="biItemPreviewBox" style="background:var(--bg-deep); padding:10px; border-radius:8px; margin-bottom:15px; border:1px solid var(--gold-dim); display:flex; align-items:center; gap:10px;">
+                    <div style="font-size:24px;">📦</div>
+                    <div>
+                        <div id="biItemNamePreview" style="font-weight:700; color:var(--gold); font-size:16px;">Selecciona Categ. y Tipo</div>
+                        <div id="biItemIDPreview" style="font-size:11px; color:var(--text-muted);">ID: ? - ?</div>
+                    </div>
+                </div>
                 <div class="boss-item-edit-grid">
                     <div class="field-group">
-                        <label>Section (Categ.)</label>
+                        <label>Categoría (Section)</label>
                         <input type="number" id="biSection" min="0" value="0">
                     </div>
                     <div class="field-group">
-                        <label>Type (ID Item)</label>
+                        <label>Tipo (ID Item)</label>
                         <input type="number" id="biType" min="0" value="0">
                     </div>
                     <div class="field-group">
-                        <label>Min Level</label>
+                        <label>Lvl Mínimo</label>
                         <input type="number" id="biMinLevel" min="0" value="0">
                     </div>
                     <div class="field-group">
-                        <label>Max Level</label>
+                        <label>Lvl Máximo</label>
                         <input type="number" id="biMaxLevel" min="0" value="4">
                     </div>
                     <div class="field-group">
@@ -600,11 +628,11 @@
                         <select id="biLuck"><option value="0">No</option><option value="1">Sí</option></select>
                     </div>
                     <div class="field-group">
-                        <label>Option</label>
+                        <label>Opción (+4/+28)</label>
                         <input type="number" id="biOption" min="0" value="0">
                     </div>
                     <div class="field-group">
-                        <label>Excellent</label>
+                        <label>Excelente</label>
                         <select id="biExcellent"><option value="0">No</option><option value="1">Sí</option></select>
                     </div>
                 </div>

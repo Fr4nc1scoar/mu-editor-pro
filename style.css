@@ -314,8 +314,40 @@ body {
 
 .boss-config-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.field-item-bag {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--bg-deep);
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+}
+
+.field-item-bag label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gold-light);
+}
+
+.field-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    min-height: 14px;
+}
+
+.field-item-bag input {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-focus);
+    color: #fff;
+    padding: 6px;
+    border-radius: 4px;
+    width: 100%;
 }
 
 .boss-items-section {
