@@ -2254,7 +2254,7 @@ function renderBossItemTable() {
             <td style="text-align:center"><span class="${item.skill ? 'toggle-yes' : 'toggle-no'}">${item.skill ? 'Sí' : 'No'}</span></td>
             <td style="text-align:center"><span class="${item.luck ? 'toggle-yes' : 'toggle-no'}">${item.luck ? 'Sí' : 'No'}</span></td>
             <td style="text-align:center">${item.option}</td>
-            <td style="text-align:center"><span class="${item.excellent ? 'toggle-yes' : 'toggle-no'}">${item.excellent ? 'Sí' : 'No'}</span></td>
+            <td style="text-align:center"><span class="${item.excellent > 0 ? 'toggle-yes' : ''}">${item.excellent}</span></td>
             <td style="text-align:center">
                 <button class="monster-edit-btn" data-bd-edit="${i}" style="padding:4px 8px;" title="Editar">✏️</button>
                 <button class="boss-delete-btn" data-bd-del="${i}" style="padding:4px 8px;" title="Eliminar">🗑️</button>
