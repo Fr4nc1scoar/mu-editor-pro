@@ -1676,12 +1676,18 @@ function initTabs() {
             document.querySelectorAll('.editor-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
 
-            // Show/hide content
-            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+            // Hide all tabs
+            document.getElementById('tabSpawns').style.display = 'none';
+            document.getElementById('tabSpawns').classList.remove('active');
+            document.getElementById('tabMonsterStats').style.display = 'none';
+            document.getElementById('tabMonsterStats').classList.remove('active');
 
+            // Show selected tab
             if (target === 'spawns') {
+                document.getElementById('tabSpawns').style.display = 'flex';
                 document.getElementById('tabSpawns').classList.add('active');
             } else if (target === 'monster-stats') {
+                document.getElementById('tabMonsterStats').style.display = 'flex';
                 document.getElementById('tabMonsterStats').classList.add('active');
             }
         });
@@ -1843,7 +1849,7 @@ function renderMonsterTable() {
             <td class="col-num">${m.itemRate}</td>
             <td class="col-num">${m.moneyRate}</td>
             <td class="col-actions-m">
-                <button class="row-btn btn-edit" title="Editar" data-action-m="edit">✏️</button>
+                <button class="monster-edit-btn" title="Editar" data-action-m="edit">✏️ Editar</button>
             </td>
         `;
         tbody.appendChild(tr);

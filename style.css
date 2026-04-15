@@ -145,9 +145,7 @@ body {
     overflow: hidden;
 }
 
-.tab-content:not(.active) {
-    display: none !important;
-}
+/* tab visibility controlled via inline styles + JS */
 
 /* ─── Monster Stats specific ─── */
 .toolbar-monster {
@@ -173,7 +171,30 @@ body {
 .col-name { min-width: 160px; }
 .col-num { width: 70px; text-align: right; }
 .col-regen { width: 90px; text-align: center; }
-.col-actions-m { width: 70px; text-align: center; }
+.col-actions-m { width: 90px; text-align: center; }
+
+.monster-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, var(--gold-dim), transparent);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius-sm);
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.monster-edit-btn:hover {
+    background: var(--gold);
+    color: var(--bg-deep);
+    transform: scale(1.05);
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+}
 
 .regen-badge {
     display: inline-block;
