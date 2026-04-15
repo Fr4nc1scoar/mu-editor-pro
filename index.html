@@ -55,6 +55,7 @@
     <div id="editorTabs" class="editor-tabs">
         <button class="editor-tab active" data-tab="spawns">🗺️ Spawns</button>
         <button class="editor-tab" data-tab="monster-stats">⚔️ Monster Stats</button>
+        <button class="editor-tab" data-tab="boss-drops">🎁 Boss Drops</button>
     </div>
 
     <!-- ═══════════════════════ TAB: SPAWNS ═══════════════════════ -->
@@ -457,6 +458,163 @@
             <span>Creado con <span class="heart">❤️</span> por <a href="https://picodeweb.vercel.app" target="_blank" rel="noopener"><strong>Picode</strong></a></span>
         </footer>
     </div><!-- END tabMonsterStats -->
+
+    <!-- ═══════════════════════ TAB: BOSS DROPS ═══════════════════════ -->
+    <div id="tabBossDrops" class="tab-content" style="display:none">
+
+        <!-- Toolbar Boss Drops -->
+        <nav class="toolbar-monster">
+            <div class="toolbar-group">
+                <button class="btn btn-primary" id="btnImportBossDrop" title="Importar archivo de boss drop">
+                    <span class="btn-icon">📂</span>
+                    <span class="btn-label">Importar Boss Drop</span>
+                </button>
+                <button class="btn btn-success" id="btnSaveBossDrop" title="Guardar cambios">
+                    <span class="btn-icon">💾</span>
+                    <span class="btn-label" id="bossSaveLabel">Guardar</span>
+                </button>
+                <div class="toolbar-divider"></div>
+                <button class="btn btn-danger" id="btnClearBossDrop" title="Cerrar archivo" style="display:none">
+                    <span class="btn-icon">✕</span>
+                    <span class="btn-label">Cerrar</span>
+                </button>
+            </div>
+        </nav>
+
+        <main class="monster-main">
+            <!-- Welcome -->
+            <div id="bossDropWelcome" class="welcome-screen">
+                <div class="welcome-content">
+                    <div class="welcome-icon">🎁</div>
+                    <h2>Boss Drops Editor</h2>
+                    <p>Edita qué items dropean los bosses: Kundun, Red Dragon, Balgass, etc.</p>
+                    <p class="welcome-path">📁 Carpeta: <code>MuServer\Data\EventItemBag\Monster\</code></p>
+                    <div class="welcome-actions">
+                        <button class="btn btn-primary btn-lg" id="btnBossWelcomeImport">📂 Importar archivo de Boss</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Editor -->
+            <div id="bossDropEditor" style="display:none; flex:1; flex-direction:column; overflow:hidden;">
+                <!-- Boss Config -->
+                <div class="boss-config-panel">
+                    <h3 id="bossDropTitle" class="boss-title">🎁 Boss</h3>
+                    <div class="boss-config-grid">
+                        <div class="field-group">
+                            <label>💰 DropZen</label>
+                            <input type="number" id="bdDropZen" min="0">
+                        </div>
+                        <div class="field-group">
+                            <label>📦 ItemDropRate</label>
+                            <input type="number" id="bdItemDropRate" min="0" max="100">
+                        </div>
+                        <div class="field-group">
+                            <label>🔢 ItemDropCount</label>
+                            <input type="number" id="bdItemDropCount" min="0">
+                        </div>
+                        <div class="field-group">
+                            <label>🛡️ SetItemDropRate</label>
+                            <input type="number" id="bdSetItemDropRate" min="0">
+                        </div>
+                        <div class="field-group">
+                            <label>ItemDropType</label>
+                            <input type="number" id="bdItemDropType" min="0">
+                        </div>
+                        <div class="field-group">
+                            <label>🎆 Fireworks</label>
+                            <input type="number" id="bdFireworks" min="0" max="1">
+                        </div>
+                        <div class="field-group">
+                            <label>DropInventory</label>
+                            <input type="number" id="bdDropInventory" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Items Table -->
+                <div class="boss-items-section">
+                    <div class="table-header-bar">
+                        <span id="bossItemCount">0 items en el loot table</span>
+                        <button class="btn btn-accent btn-sm" id="btnAddBossItem">➕ Agregar Item</button>
+                    </div>
+                    <div class="table-scroll">
+                        <table id="bossItemTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Section</th>
+                                    <th>Type</th>
+                                    <th>Min Lvl</th>
+                                    <th>Max Lvl</th>
+                                    <th>Skill</th>
+                                    <th>Luck</th>
+                                    <th>Option</th>
+                                    <th>Excellent</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bossItemTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-footer-clone">
+            <span>Creado con <span class="heart">❤️</span> por <a href="https://picodeweb.vercel.app" target="_blank" rel="noopener"><strong>Picode</strong></a></span>
+        </footer>
+    </div><!-- END tabBossDrops -->
+
+    <!-- ═══════════════════════ MODAL: ADD BOSS ITEM ═══════════════════════ -->
+    <div class="modal-overlay" id="modalBossItem" style="display:none">
+        <div class="modal" style="width:500px">
+            <div class="modal-header">
+                <h3 id="bossItemModalTitle">➕ Agregar Item al Loot</h3>
+                <button class="modal-close" id="bossItemModalClose">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="boss-item-edit-grid">
+                    <div class="field-group">
+                        <label>Section (Categ.)</label>
+                        <input type="number" id="biSection" min="0" value="0">
+                    </div>
+                    <div class="field-group">
+                        <label>Type (ID Item)</label>
+                        <input type="number" id="biType" min="0" value="0">
+                    </div>
+                    <div class="field-group">
+                        <label>Min Level</label>
+                        <input type="number" id="biMinLevel" min="0" value="0">
+                    </div>
+                    <div class="field-group">
+                        <label>Max Level</label>
+                        <input type="number" id="biMaxLevel" min="0" value="4">
+                    </div>
+                    <div class="field-group">
+                        <label>Skill</label>
+                        <select id="biSkill"><option value="0">No</option><option value="1">Sí</option></select>
+                    </div>
+                    <div class="field-group">
+                        <label>Luck</label>
+                        <select id="biLuck"><option value="0">No</option><option value="1">Sí</option></select>
+                    </div>
+                    <div class="field-group">
+                        <label>Option</label>
+                        <input type="number" id="biOption" min="0" value="0">
+                    </div>
+                    <div class="field-group">
+                        <label>Excellent</label>
+                        <select id="biExcellent"><option value="0">No</option><option value="1">Sí</option></select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="btnCancelBossItem">Cancelar</button>
+                <button class="btn btn-accent" id="btnConfirmBossItem">✅ Agregar</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ═══════════════════════ MODAL: EDIT MONSTER ═══════════════════════ -->
     <div class="modal-overlay" id="modalMonster" style="display:none">

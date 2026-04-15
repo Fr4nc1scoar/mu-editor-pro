@@ -1641,6 +1641,7 @@ function init() {
     renderTable();
     initEvents();
     initMonsterStats();
+    initBossDrops();
 
     if (state.spawns.length > 0) {
         showToast(`📂 Sesión restaurada: ${state.spawns.length} spawns`, 'info');
@@ -1681,6 +1682,8 @@ function initTabs() {
             document.getElementById('tabSpawns').classList.remove('active');
             document.getElementById('tabMonsterStats').style.display = 'none';
             document.getElementById('tabMonsterStats').classList.remove('active');
+            document.getElementById('tabBossDrops').style.display = 'none';
+            document.getElementById('tabBossDrops').classList.remove('active');
 
             // Show selected tab
             if (target === 'spawns') {
@@ -1689,6 +1692,9 @@ function initTabs() {
             } else if (target === 'monster-stats') {
                 document.getElementById('tabMonsterStats').style.display = 'flex';
                 document.getElementById('tabMonsterStats').classList.add('active');
+            } else if (target === 'boss-drops') {
+                document.getElementById('tabBossDrops').style.display = 'flex';
+                document.getElementById('tabBossDrops').classList.add('active');
             }
         });
     });
@@ -2106,4 +2112,334 @@ function initMonsterStats() {
 
     // Regen hint live update
     document.getElementById('mEditRegenTime').addEventListener('input', updateRegenHint);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// BOSS DROPS EDITOR
+// ═══════════════════════════════════════════════════════════════════════
+
+const bossState = {
+    bossName: '',
+    config: { dropZen: 0, itemDropRate: 0, itemDropCount: 0, setItemDropRate: 0, itemDropType: 0, fireworks: 0, dropInventory: 0 },
+    items: [],
+    fileHandle: null,
+    fileName: null,
+    modified: false,
+    editingItemIdx: null, // null = add, number = edit index
+};
+
+// ─── Parse EventItemBag boss file ───
+function parseBossDropFile(text) {
+    const lines = text.split('\n').map(l => l.trim());
+    let section = -1;
+    const result = { bossName: '', config: {}, items: [] };
+
+    for (const line of lines) {
+        if (!line || line.startsWith('//')) continue;
+        if (line === 'end') { section = -1; continue; }
+        if (line === '0') { section = 0; continue; }
+        if (line === '1') { section = 1; continue; }
+
+        if (section === 0) {
+            const nameMatch = line.match(/"([^"]+)"/);
+            if (nameMatch) {
+                result.bossName = nameMatch[1];
+                const afterName = line.substring(line.lastIndexOf('"') + 1).trim();
+                const vals = afterName.split(/\s+/).filter(v => v.length > 0);
+                result.config = {
+                    dropZen: parseInt(vals[0]) || 0,
+                    itemDropRate: parseInt(vals[1]) || 0,
+                    itemDropCount: parseInt(vals[2]) || 0,
+                    setItemDropRate: parseInt(vals[3]) || 0,
+                    itemDropType: parseInt(vals[4]) || 0,
+                    fireworks: parseInt(vals[5]) || 0,
+                    dropInventory: parseInt(vals[6]) || 0,
+                };
+            }
+        } else if (section === 1) {
+            const vals = line.split(/\s+/).filter(v => v.length > 0);
+            if (vals.length >= 8) {
+                result.items.push({
+                    section: parseInt(vals[0]),
+                    type: parseInt(vals[1]),
+                    minLevel: parseInt(vals[2]),
+                    maxLevel: parseInt(vals[3]),
+                    skill: parseInt(vals[4]),
+                    luck: parseInt(vals[5]),
+                    option: parseInt(vals[6]),
+                    excellent: parseInt(vals[7]),
+                });
+            }
+        }
+    }
+    return result;
+}
+
+// ─── Generate EventItemBag boss file ───
+function generateBossDropFile() {
+    let out = '0\n';
+    out += '//EventName              DropZen   ItemDropRate   ItemDropCount   SetItemDropRate   ItemDropType   Fireworks\tDropInventory\n';
+    const c = bossState.config;
+    const name = `"${bossState.bossName}"`;
+    out += `${name.padEnd(25)}${String(c.dropZen).padEnd(10)}${String(c.itemDropRate).padEnd(15)}${String(c.itemDropCount).padEnd(16)}${String(c.setItemDropRate).padEnd(18)}${String(c.itemDropType).padEnd(15)}${String(c.fireworks)}\t\t${String(c.dropInventory)}\n`;
+    out += 'end\n\n';
+    out += '1\n';
+    out += '//Section   Type   MinLevel   MaxLevel   Skill   Luck   Option   Excellent\n';
+    for (const item of bossState.items) {
+        out += `${String(item.section).padEnd(12)}${String(item.type).padEnd(7)}${String(item.minLevel).padEnd(11)}${String(item.maxLevel).padEnd(11)}${String(item.skill).padEnd(8)}${String(item.luck).padEnd(7)}${String(item.option).padEnd(9)}${String(item.excellent)}\n`;
+    }
+    out += 'end\n';
+    return out;
+}
+
+// ─── Render Boss Drop UI ───
+function renderBossDropUI() {
+    const hasData = bossState.bossName !== '';
+    document.getElementById('bossDropWelcome').style.display = hasData ? 'none' : 'flex';
+    const editor = document.getElementById('bossDropEditor');
+    editor.style.display = hasData ? 'flex' : 'none';
+    editor.style.flexDirection = 'column';
+    editor.style.flex = '1';
+    editor.style.overflow = 'hidden';
+
+    if (!hasData) return;
+
+    document.getElementById('bossDropTitle').textContent = `🎁 ${bossState.bossName}`;
+    document.getElementById('bdDropZen').value = bossState.config.dropZen;
+    document.getElementById('bdItemDropRate').value = bossState.config.itemDropRate;
+    document.getElementById('bdItemDropCount').value = bossState.config.itemDropCount;
+    document.getElementById('bdSetItemDropRate').value = bossState.config.setItemDropRate;
+    document.getElementById('bdItemDropType').value = bossState.config.itemDropType;
+    document.getElementById('bdFireworks').value = bossState.config.fireworks;
+    document.getElementById('bdDropInventory').value = bossState.config.dropInventory;
+
+    renderBossItemTable();
+}
+
+function renderBossItemTable() {
+    const tbody = document.getElementById('bossItemTableBody');
+    tbody.innerHTML = '';
+    document.getElementById('bossItemCount').textContent = `${bossState.items.length} items en el loot table`;
+
+    bossState.items.forEach((item, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="text-align:center">${i + 1}</td>
+            <td style="text-align:center">${item.section}</td>
+            <td style="text-align:center">${item.type}</td>
+            <td style="text-align:center">${item.minLevel}</td>
+            <td style="text-align:center">${item.maxLevel}</td>
+            <td style="text-align:center"><span class="${item.skill ? 'toggle-yes' : 'toggle-no'}">${item.skill ? 'Sí' : 'No'}</span></td>
+            <td style="text-align:center"><span class="${item.luck ? 'toggle-yes' : 'toggle-no'}">${item.luck ? 'Sí' : 'No'}</span></td>
+            <td style="text-align:center">${item.option}</td>
+            <td style="text-align:center"><span class="${item.excellent ? 'toggle-yes' : 'toggle-no'}">${item.excellent ? 'Sí' : 'No'}</span></td>
+            <td style="text-align:center">
+                <button class="monster-edit-btn" data-bd-edit="${i}" style="margin-right:4px">✏️</button>
+                <button class="boss-delete-btn" data-bd-del="${i}">🗑️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// ─── Read config from inputs ───
+function readBossConfig() {
+    bossState.config.dropZen = parseInt(document.getElementById('bdDropZen').value) || 0;
+    bossState.config.itemDropRate = parseInt(document.getElementById('bdItemDropRate').value) || 0;
+    bossState.config.itemDropCount = parseInt(document.getElementById('bdItemDropCount').value) || 0;
+    bossState.config.setItemDropRate = parseInt(document.getElementById('bdSetItemDropRate').value) || 0;
+    bossState.config.itemDropType = parseInt(document.getElementById('bdItemDropType').value) || 0;
+    bossState.config.fireworks = parseInt(document.getElementById('bdFireworks').value) || 0;
+    bossState.config.dropInventory = parseInt(document.getElementById('bdDropInventory').value) || 0;
+}
+
+// ─── Import Boss Drop ───
+async function importBossDrop() {
+    try {
+        if (window.showOpenFilePicker) {
+            const [handle] = await window.showOpenFilePicker({
+                types: [{ description: 'Boss Drop txt', accept: { 'text/plain': ['.txt'] } }],
+            });
+            const file = await handle.getFile();
+            const text = await file.text();
+            const parsed = parseBossDropFile(text);
+            bossState.bossName = parsed.bossName;
+            bossState.config = parsed.config;
+            bossState.items = parsed.items;
+            bossState.fileHandle = handle;
+            bossState.fileName = file.name;
+            bossState.modified = false;
+            document.getElementById('btnClearBossDrop').style.display = 'inline-flex';
+            document.getElementById('bossSaveLabel').textContent = 'Guardar';
+            renderBossDropUI();
+            showToast(`✅ ${parsed.bossName}: ${parsed.items.length} items cargados`, 'success');
+            showToast('🔗 Conectado al archivo original', 'success');
+        } else {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.txt';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const parsed = parseBossDropFile(ev.target.result);
+                    bossState.bossName = parsed.bossName;
+                    bossState.config = parsed.config;
+                    bossState.items = parsed.items;
+                    bossState.fileName = file.name;
+                    bossState.modified = false;
+                    document.getElementById('btnClearBossDrop').style.display = 'inline-flex';
+                    document.getElementById('bossSaveLabel').textContent = 'Descargar';
+                    renderBossDropUI();
+                    showToast(`✅ ${parsed.bossName}: ${parsed.items.length} items cargados`, 'success');
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+    } catch (err) {
+        if (err.name !== 'AbortError') console.error(err);
+    }
+}
+
+// ─── Save Boss Drop ───
+async function saveBossDrop() {
+    if (!bossState.bossName) { showToast('No hay datos para guardar', 'warning'); return; }
+    readBossConfig();
+    const content = generateBossDropFile();
+
+    if (bossState.fileHandle) {
+        try {
+            const writable = await bossState.fileHandle.createWritable();
+            await writable.write(content);
+            await writable.close();
+            bossState.modified = false;
+            showToast(`💾 Guardado: ${bossState.bossName}`, 'success');
+            return;
+        } catch (err) { console.warn('Direct save failed', err); }
+    }
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = bossState.fileName || `${bossState.bossName}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`💾 Descargado: ${a.download}`, 'success');
+}
+
+// ─── Clear Boss Drop ───
+function clearBossDrop() {
+    if (bossState.items.length > 0 && !confirm('¿Cerrar archivo de boss? Los cambios no guardados se perderán.')) return;
+    bossState.bossName = '';
+    bossState.config = { dropZen: 0, itemDropRate: 0, itemDropCount: 0, setItemDropRate: 0, itemDropType: 0, fireworks: 0, dropInventory: 0 };
+    bossState.items = [];
+    bossState.fileHandle = null;
+    bossState.fileName = null;
+    bossState.modified = false;
+    document.getElementById('btnClearBossDrop').style.display = 'none';
+    renderBossDropUI();
+    showToast('🗑️ Archivo de boss cerrado', 'info');
+}
+
+// ─── Boss Item Modal ───
+function openBossItemModal(editIdx) {
+    bossState.editingItemIdx = editIdx;
+    if (editIdx !== null) {
+        const item = bossState.items[editIdx];
+        document.getElementById('bossItemModalTitle').textContent = `✏️ Editar Item #${editIdx + 1}`;
+        document.getElementById('biSection').value = item.section;
+        document.getElementById('biType').value = item.type;
+        document.getElementById('biMinLevel').value = item.minLevel;
+        document.getElementById('biMaxLevel').value = item.maxLevel;
+        document.getElementById('biSkill').value = item.skill;
+        document.getElementById('biLuck').value = item.luck;
+        document.getElementById('biOption').value = item.option;
+        document.getElementById('biExcellent').value = item.excellent;
+        document.getElementById('btnConfirmBossItem').textContent = '💾 Guardar';
+    } else {
+        document.getElementById('bossItemModalTitle').textContent = '➕ Agregar Item al Loot';
+        document.getElementById('biSection').value = 0;
+        document.getElementById('biType').value = 0;
+        document.getElementById('biMinLevel').value = 0;
+        document.getElementById('biMaxLevel').value = 4;
+        document.getElementById('biSkill').value = 1;
+        document.getElementById('biLuck').value = 1;
+        document.getElementById('biOption').value = 0;
+        document.getElementById('biExcellent').value = 0;
+        document.getElementById('btnConfirmBossItem').textContent = '✅ Agregar';
+    }
+    document.getElementById('modalBossItem').style.display = 'flex';
+}
+
+function closeBossItemModal() {
+    document.getElementById('modalBossItem').style.display = 'none';
+    bossState.editingItemIdx = null;
+}
+
+function confirmBossItem() {
+    const item = {
+        section: parseInt(document.getElementById('biSection').value) || 0,
+        type: parseInt(document.getElementById('biType').value) || 0,
+        minLevel: parseInt(document.getElementById('biMinLevel').value) || 0,
+        maxLevel: parseInt(document.getElementById('biMaxLevel').value) || 0,
+        skill: parseInt(document.getElementById('biSkill').value) || 0,
+        luck: parseInt(document.getElementById('biLuck').value) || 0,
+        option: parseInt(document.getElementById('biOption').value) || 0,
+        excellent: parseInt(document.getElementById('biExcellent').value) || 0,
+    };
+
+    if (bossState.editingItemIdx !== null) {
+        bossState.items[bossState.editingItemIdx] = item;
+        showToast('✅ Item actualizado', 'success');
+    } else {
+        bossState.items.push(item);
+        showToast('✅ Item agregado al loot table', 'success');
+    }
+
+    bossState.modified = true;
+    closeBossItemModal();
+    renderBossItemTable();
+}
+
+function deleteBossItem(idx) {
+    if (!confirm(`¿Eliminar item #${idx + 1} del loot table?`)) return;
+    bossState.items.splice(idx, 1);
+    bossState.modified = true;
+    renderBossItemTable();
+    showToast('🗑️ Item eliminado', 'info');
+}
+
+// ─── Init Boss Drops ───
+function initBossDrops() {
+    document.getElementById('btnImportBossDrop').addEventListener('click', importBossDrop);
+    document.getElementById('btnBossWelcomeImport').addEventListener('click', importBossDrop);
+    document.getElementById('btnSaveBossDrop').addEventListener('click', saveBossDrop);
+    document.getElementById('btnClearBossDrop').addEventListener('click', clearBossDrop);
+
+    // Add item
+    document.getElementById('btnAddBossItem').addEventListener('click', () => openBossItemModal(null));
+
+    // Item modal
+    document.getElementById('bossItemModalClose').addEventListener('click', closeBossItemModal);
+    document.getElementById('btnCancelBossItem').addEventListener('click', closeBossItemModal);
+    document.getElementById('btnConfirmBossItem').addEventListener('click', confirmBossItem);
+    document.getElementById('modalBossItem').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeBossItemModal();
+    });
+
+    // Table actions (edit/delete)
+    document.getElementById('bossItemTableBody').addEventListener('click', (e) => {
+        const editBtn = e.target.closest('[data-bd-edit]');
+        if (editBtn) {
+            openBossItemModal(parseInt(editBtn.dataset.bdEdit));
+            return;
+        }
+        const delBtn = e.target.closest('[data-bd-del]');
+        if (delBtn) {
+            deleteBossItem(parseInt(delBtn.dataset.bdDel));
+        }
+    });
 }
