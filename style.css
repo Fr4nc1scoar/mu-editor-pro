@@ -833,19 +833,19 @@ select option {
     overflow-x: auto;
 }
 
-#spawnTable {
+.table-data {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
 }
 
-#spawnTable thead {
+.table-data thead {
     position: sticky;
     top: 0;
     z-index: 10;
 }
 
-#spawnTable th {
+.table-data th {
     padding: 10px 12px;
     background: var(--bg-elevated);
     border-bottom: 2px solid var(--border-default);
@@ -859,12 +859,12 @@ select option {
     user-select: none;
 }
 
-#spawnTable th.sortable { cursor: pointer; }
-#spawnTable th.sortable:hover { color: var(--gold); }
-#spawnTable th.sorted-asc::after { content: ' ▲'; color: var(--gold); }
-#spawnTable th.sorted-desc::after { content: ' ▼'; color: var(--gold); }
+.table-data th.sortable { cursor: pointer; }
+.table-data th.sortable:hover { color: var(--gold); }
+.table-data th.sorted-asc::after { content: ' ▲'; color: var(--gold); }
+.table-data th.sorted-desc::after { content: ' ▼'; color: var(--gold); }
 
-#spawnTable td {
+.table-data td {
     padding: 5px 10px;
     border-bottom: 1px solid var(--border-subtle);
     vertical-align: middle;
@@ -872,15 +872,15 @@ select option {
     font-size: 12px;
 }
 
-#spawnTable tbody tr {
+.table-data tbody tr {
     transition: background var(--transition-fast);
 }
 
-#spawnTable tbody tr:hover {
+.table-data tbody tr:hover {
     background: var(--bg-hover);
 }
 
-#spawnTable tbody tr.selected {
+.table-data tbody tr.selected {
     background: var(--gold-dim);
 }
 
@@ -1725,4 +1725,45 @@ kbd {
     .filter-group select { flex: 1; min-width: 140px; }
     .stats-bar { flex-wrap: wrap; }
     .welcome-actions { flex-direction: column; }
+}
+
+/* Custom Dropdown for Item Search */
+.custom-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-deep);
+    border: 1px solid var(--border-focus);
+    border-radius: var(--radius-sm);
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    margin-top: 4px;
+}
+.custom-drop-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.1s;
+}
+.custom-drop-item:hover {
+    background: var(--bg-hover);
+}
+.custom-drop-item-name {
+    font-weight: 600;
+    color: #fff;
+    font-size: 13px;
+}
+.custom-drop-item:hover .custom-drop-item-name {
+    color: var(--gold);
+}
+.custom-drop-item-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
 }

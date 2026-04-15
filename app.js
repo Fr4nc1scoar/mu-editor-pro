@@ -2367,6 +2367,63 @@ function clearBossDrop() {
 }
 
 // ─── Boss Item Modal ───
+let itemDropdownInitialized = false;
+
+function initItemDropdown() {
+    if (itemDropdownInitialized) return;
+    const list = document.getElementById('biItemDropdown');
+    const search = document.getElementById('biItemSearch');
+    
+    let html = '';
+    for (let key in ITEM_DB) {
+        const name = ITEM_DB[key];
+        const parts = key.split('-');
+        const catName = getSectionName(parseInt(parts[0]));
+        html += `<div class="custom-drop-item" data-id="${key}" data-search="${name.toLowerCase()} ${catName.toLowerCase()} ${key}">
+            <span class="custom-drop-item-name">${name}</span>
+            <span class="custom-drop-item-meta">${catName} (ID: ${key})</span>
+        </div>`;
+    }
+    list.innerHTML = html;
+
+    search.addEventListener('focus', () => { 
+        list.style.display = 'block'; 
+        search.select();
+    });
+    
+    document.addEventListener('click', (e) => { 
+        if (!e.target.closest('#biItemSearch') && !e.target.closest('#biItemDropdown')) {
+            list.style.display = 'none'; 
+        }
+    });
+
+    search.addEventListener('input', (e) => {
+        const val = e.target.value.toLowerCase().trim();
+        Array.from(list.children).forEach(el => {
+            if (!val || el.dataset.search.includes(val)) {
+                el.style.display = 'flex';
+            } else {
+                el.style.display = 'none';
+            }
+        });
+        list.style.display = 'block';
+    });
+
+    list.addEventListener('click', (e) => {
+        const item = e.target.closest('.custom-drop-item');
+        if (item) {
+            const parts = item.dataset.id.split('-');
+            document.getElementById('biSection').value = parts[0];
+            document.getElementById('biType').value = parts[1];
+            search.value = ITEM_DB[item.dataset.id];
+            list.style.display = 'none';
+            updateItemPreview();
+        }
+    });
+    
+    itemDropdownInitialized = true;
+}
+
 function updateItemPreview() {
     const section = parseInt(document.getElementById('biSection').value) || 0;
     const type = parseInt(document.getElementById('biType').value) || 0;
@@ -2386,6 +2443,7 @@ function openBossItemModal(editIdx) {
         document.getElementById('bossItemModalTitle').textContent = `✏️ Editar Item #${editIdx + 1}`;
         document.getElementById('biSection').value = item.section;
         document.getElementById('biType').value = item.type;
+        document.getElementById('biItemSearch').value = getItemName(item.section, item.type);
         document.getElementById('biMinLevel').value = item.minLevel;
         document.getElementById('biMaxLevel').value = item.maxLevel;
         document.getElementById('biSkill').value = item.skill;
@@ -2397,6 +2455,7 @@ function openBossItemModal(editIdx) {
         document.getElementById('bossItemModalTitle').textContent = '➕ Agregar Item al Loot';
         document.getElementById('biSection').value = 0;
         document.getElementById('biType').value = 0;
+        document.getElementById('biItemSearch').value = getItemName(0, 0);
         document.getElementById('biMinLevel').value = 0;
         document.getElementById('biMaxLevel').value = 4;
         document.getElementById('biSkill').value = 1;
@@ -2469,7 +2528,6 @@ function initBossDrops() {
     document.getElementById('biSection').addEventListener('input', updateItemPreview);
     document.getElementById('biType').addEventListener('input', updateItemPreview);
 
-    // Table actions (edit/delete)
     document.getElementById('bossItemTableBody').addEventListener('click', (e) => {
         const editBtn = e.target.closest('[data-bd-edit]');
         if (editBtn) {
@@ -2481,4 +2539,6 @@ function initBossDrops() {
             deleteBossItem(parseInt(delBtn.dataset.bdDel));
         }
     });
+
+    initItemDropdown();
 }

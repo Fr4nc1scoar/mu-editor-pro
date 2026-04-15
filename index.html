@@ -151,7 +151,7 @@
                 <span class="table-count" id="tableCount">0 spawns</span>
             </div>
             <div class="table-scroll">
-                <table id="spawnTable">
+                <table id="spawnTable" class="table-data">
                     <thead>
                         <tr>
                             <th class="col-check"><input type="checkbox" id="selectAllHead"></th>
@@ -428,7 +428,7 @@
                     <span id="monsterTableCount">0 monstruos</span>
                 </div>
                 <div class="table-scroll">
-                    <table id="monsterTable">
+                    <table id="monsterTable" class="table-data">
                         <thead>
                             <tr>
                                 <th class="col-id sortable-m" data-sort-m="index">ID</th>
@@ -552,7 +552,7 @@
                         <button class="btn btn-accent btn-sm" id="btnAddBossItem">➕ Agregar Item</button>
                     </div>
                     <div class="table-scroll">
-                        <table id="bossItemTable">
+                        <table id="bossItemTable" class="table-data">
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -594,14 +594,19 @@
                     </div>
                 </div>
                 <div class="boss-item-edit-grid">
-                    <div class="field-group">
-                        <label>Categoría (Section)</label>
-                        <input type="number" id="biSection" min="0" value="0">
+                    <!-- Search Dropdown -->
+                    <div class="field-group" style="grid-column: span 2; position: relative;">
+                        <label>🔍 Buscar o Seleccionar Ítem</label>
+                        <input type="text" id="biItemSearch" class="form-input" placeholder="Ej. Bone Blade, 0-22..." autocomplete="off">
+                        <div id="biItemDropdown" class="custom-dropdown" style="display:none;"></div>
                     </div>
-                    <div class="field-group">
-                        <label>Tipo (ID Item)</label>
-                        <input type="number" id="biType" min="0" value="0">
+                    
+                    <!-- Hidden IDs -->
+                    <div style="display:none;">
+                        <input type="number" id="biSection" value="0">
+                        <input type="number" id="biType" value="0">
                     </div>
+
                     <div class="field-group">
                         <label>Lvl Mínimo</label>
                         <input type="number" id="biMinLevel" min="0" value="0">
