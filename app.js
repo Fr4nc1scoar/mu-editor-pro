@@ -2516,6 +2516,17 @@ function initBossDrops() {
     // Add item
     document.getElementById('btnAddBossItem').addEventListener('click', () => openBossItemModal(null));
 
+    // Clear items
+    document.getElementById('btnClearBossItems').addEventListener('click', () => {
+        if (bossState.items.length === 0) return;
+        if (confirm("¿Estás seguro de que deseas eliminar TODOS los items de este archivo?")) {
+            bossState.items = [];
+            bossState.modified = true;
+            renderBossItemTable();
+            showToast('🗑️ Todos los items de la lista fueron eliminados', 'info');
+        }
+    });
+
     // Item modal
     document.getElementById('bossItemModalClose').addEventListener('click', closeBossItemModal);
     document.getElementById('btnCancelBossItem').addEventListener('click', closeBossItemModal);
