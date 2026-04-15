@@ -2431,9 +2431,18 @@ function updateItemPreview() {
     
     const nameEl = document.getElementById('biItemNamePreview');
     const idEl = document.getElementById('biItemIDPreview');
+    const kundunHint = document.getElementById('kundunHint');
     
     if (nameEl) nameEl.textContent = name;
     if (idEl) idEl.textContent = `ID: ${section} - ${type}`;
+    
+    if (kundunHint) {
+        if (section === 14 && type === 11) {
+            kundunHint.style.display = 'block';
+        } else {
+            kundunHint.style.display = 'none';
+        }
+    }
 }
 
 function openBossItemModal(editIdx) {
