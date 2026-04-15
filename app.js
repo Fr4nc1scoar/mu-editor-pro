@@ -2128,48 +2128,23 @@ const bossState = {
     editingItemIdx: null, // null = add, number = edit index
 };
 
-// ─── Item Database Engine ───
-const itemDatabase = {}; // Key: "section-type", Value: "Item Name"
-
-function parseItemTxt(text) {
-    const lines = text.split('\n').map(l => l.trim());
-    let currentSection = -1;
-    let count = 0;
-
-    for (let line of lines) {
-        if (!line || line.startsWith('//')) continue;
-        
-        // Detect section (0, 1, 2, etc.)
-        if (/^\d+$/.test(line)) {
-            currentSection = parseInt(line);
-            continue;
-        }
-
-        if (line === 'end') {
-            currentSection = -1;
-            continue;
-        }
-
-        if (currentSection >= 0) {
-            // Match type and name (name is in quotes)
-            const typeMatch = line.match(/^(\d+)/);
-            const nameMatch = line.match(/"([^"]+)"/);
-            
-            if (typeMatch && nameMatch) {
-                const type = typeMatch[1];
-                const name = nameMatch[1];
-                itemDatabase[`${currentSection}-${type}`] = name;
-                count++;
-            }
-        }
-    }
-    console.log(`Parsed ${count} items from Item.txt`);
-    return count;
-}
+// ─── Item Name Engine (uses ITEM_DB from itemData.js) ───
+const SECTION_NAMES = {
+    0: '⚔️ Espadas', 1: '🪓 Hachas', 2: '🔨 Mazas/Cetros', 3: '🗡️ Lanzas',
+    4: '🏹 Arcos', 5: '🪄 Bastones', 6: '🛡️ Escudos', 7: '🪖 Cascos',
+    8: '👕 Armaduras', 9: '🦵 Pantalones', 10: '🥾 Botas', 11: '🧤 Guantes',
+    12: '💍 Alas/Capas', 13: '🐾 Mascotas', 14: '🔮 Misceláneos',
+    15: '📜 Pergaminos'
+};
 
 function getItemName(section, type) {
     const key = `${section}-${type}`;
-    return itemDatabase[key] || `Item ${section}-${type}`;
+    if (typeof ITEM_DB !== 'undefined' && ITEM_DB[key]) return ITEM_DB[key];
+    return `Item ${section}-${type}`;
+}
+
+function getSectionName(section) {
+    return SECTION_NAMES[section] || `Categoría ${section}`;
 }
 
 // ─── Parse EventItemBag boss file ───
@@ -2269,23 +2244,23 @@ function renderBossItemTable() {
 
     bossState.items.forEach((item, i) => {
         const itemName = getItemName(item.section, item.type);
+        const sectionName = getSectionName(item.section);
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td style="text-align:center; color:var(--text-muted); font-size:11px;">${i + 1}</td>
-            <td style="text-align:center; font-weight:bold; color:var(--gold-light)">${item.section}</td>
+            <td style="font-size:12px;">${sectionName}</td>
             <td>
                 <div style="font-weight:600; color:#fff;">${itemName}</div>
+                <div style="font-size:10px; color:var(--text-muted); font-family:var(--font-mono);">ID: ${item.section}-${item.type}</div>
             </td>
-            <td style="text-align:center; color:var(--cyan); font-family:var(--font-mono); font-size:11px;">${item.section}-${item.type}</td>
-            <td style="text-align:center">${item.minLevel}</td>
-            <td style="text-align:center">${item.maxLevel}</td>
+            <td style="text-align:center">${item.minLevel} → ${item.maxLevel}</td>
             <td style="text-align:center"><span class="${item.skill ? 'toggle-yes' : 'toggle-no'}">${item.skill ? 'Sí' : 'No'}</span></td>
             <td style="text-align:center"><span class="${item.luck ? 'toggle-yes' : 'toggle-no'}">${item.luck ? 'Sí' : 'No'}</span></td>
             <td style="text-align:center">${item.option}</td>
             <td style="text-align:center"><span class="${item.excellent ? 'toggle-yes' : 'toggle-no'}">${item.excellent ? 'Sí' : 'No'}</span></td>
             <td style="text-align:center">
-                <button class="monster-edit-btn" data-bd-edit="${i}" style="margin-right:4px; padding: 4px 8px;" title="Editar">✏️</button>
-                <button class="boss-delete-btn" data-bd-del="${i}" style="padding: 4px 8px;" title="Eliminar">🗑️</button>
+                <button class="monster-edit-btn" data-bd-edit="${i}" style="padding:4px 8px;" title="Editar">✏️</button>
+                <button class="boss-delete-btn" data-bd-del="${i}" style="padding:4px 8px;" title="Eliminar">🗑️</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -2394,40 +2369,6 @@ function clearBossDrop() {
     showToast('🗑️ Archivo de boss cerrado', 'info');
 }
 
-// ─── Import Item Names (Item.txt) ───
-async function importItemNames() {
-    try {
-        if (window.showOpenFilePicker) {
-            const [handle] = await window.showOpenFilePicker({
-                types: [{ description: 'Server Item.txt', accept: { 'text/plain': ['.txt'] } }],
-            });
-            const file = await handle.getFile();
-            const text = await file.text();
-            const count = parseItemTxt(text);
-            showToast(`💎 Base de datos: ${count} items cargados`, 'success');
-            renderBossItemTable(); // Refresh table with names
-        } else {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.txt';
-            input.onchange = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    const count = parseItemTxt(ev.target.result);
-                    showToast(`💎 Base de datos: ${count} items cargados`, 'success');
-                    renderBossItemTable();
-                };
-                reader.readAsText(file);
-            };
-            input.click();
-        }
-    } catch (err) {
-        if (err.name !== 'AbortError') console.error(err);
-    }
-}
-
 // ─── Boss Item Modal ───
 function updateItemPreview() {
     const section = parseInt(document.getElementById('biSection').value) || 0;
@@ -2515,7 +2456,6 @@ function initBossDrops() {
     document.getElementById('btnBossWelcomeImport').addEventListener('click', importBossDrop);
     document.getElementById('btnSaveBossDrop').addEventListener('click', saveBossDrop);
     document.getElementById('btnClearBossDrop').addEventListener('click', clearBossDrop);
-    document.getElementById('btnImportItemNames').addEventListener('click', importItemNames);
 
     // Add item
     document.getElementById('btnAddBossItem').addEventListener('click', () => openBossItemModal(null));

@@ -478,14 +478,6 @@
                     <span class="btn-icon">✕</span>
                     <span class="btn-label">Cerrar</span>
                 </button>
-                <div class="toolbar-divider"></div>
-                <button class="btn btn-outline" id="btnImportItemNames" title="Cargar Item.txt para ver nombres">
-                    <span class="btn-icon">💎</span>
-                    <span class="btn-label">Cargar Nombres (Item.txt)</span>
-                </button>
-            </div>
-            <div class="toolbar-group" style="color: var(--text-muted); font-size: 13px;">
-                💡 Presiona Importar para abrir una caja o boss
             </div>
         </nav>
 
@@ -564,14 +556,12 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Categoría</th>
-                                    <th>Descripción (Auto)</th>
-                                    <th title="S/T: Section/Type">ID (S-T)</th>
-                                    <th title="Nivel mínimo del item (ej. +9)">Lvl Min</th>
-                                    <th title="Nivel máximo del item (ej. +13)">Lvl Max</th>
+                                    <th>Item</th>
+                                    <th>Nivel</th>
                                     <th>Skill</th>
                                     <th>Luck</th>
-                                    <th title="Daño/Defensa adicional">Option</th>
-                                    <th title="Item Excelente">Excel.</th>
+                                    <th>Option</th>
+                                    <th>Excel.</th>
                                     <th style="width: 100px;">Acciones</th>
                                 </tr>
                             </thead>
@@ -904,6 +894,7 @@
     <!-- Hidden file input for import -->
     <input type="file" id="hiddenFileInput" accept=".txt" style="display:none">
 
+    <script src="itemData.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
