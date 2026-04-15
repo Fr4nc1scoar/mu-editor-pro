@@ -1967,9 +1967,10 @@ async function importMonsterTxt() {
             monsterState.fileName = file.name;
             monsterState.modified = false;
             renderMonsterTable();
+            document.getElementById('btnClearMonster').style.display = 'inline-flex';
+            document.getElementById('monsterSaveLabel').textContent = 'Guardar';
             showToast(`✅ ${monsterState.monsters.length} monstruos cargados desde ${file.name}`, 'success');
             showToast('🔗 Conectado: guardar sobreescribirá el archivo original', 'success');
-            document.getElementById('monsterSaveLabel').textContent = 'Guardar';
         } else {
             // Fallback
             const input = document.createElement('input');
@@ -1984,8 +1985,9 @@ async function importMonsterTxt() {
                     monsterState.fileName = file.name;
                     monsterState.modified = false;
                     renderMonsterTable();
-                    showToast(`✅ ${monsterState.monsters.length} monstruos cargados`, 'success');
+                    document.getElementById('btnClearMonster').style.display = 'inline-flex';
                     document.getElementById('monsterSaveLabel').textContent = 'Descargar';
+                    showToast(`✅ ${monsterState.monsters.length} monstruos cargados`, 'success');
                 };
                 reader.readAsText(file);
             };
@@ -1994,6 +1996,19 @@ async function importMonsterTxt() {
     } catch (err) {
         if (err.name !== 'AbortError') console.error(err);
     }
+}
+
+function clearMonsterFile() {
+    if (monsterState.monsters.length > 0 && !confirm('¿Cerrar el archivo Monster.txt? Los cambios no guardados se perderán.')) return;
+    monsterState.monsters = [];
+    monsterState.fileHandle = null;
+    monsterState.fileName = null;
+    monsterState.modified = false;
+    monsterState.editingIndex = null;
+    document.getElementById('btnClearMonster').style.display = 'none';
+    document.getElementById('monsterSaveLabel').textContent = 'Guardar';
+    renderMonsterTable();
+    showToast('🗑️ Archivo Monster.txt cerrado', 'info');
 }
 
 async function saveMonsterTxt() {
@@ -2040,6 +2055,9 @@ function initMonsterStats() {
 
     // Save
     document.getElementById('btnSaveMonster').addEventListener('click', saveMonsterTxt);
+
+    // Clear/close file
+    document.getElementById('btnClearMonster').addEventListener('click', clearMonsterFile);
 
     // Search & Filter
     document.getElementById('monsterSearchInput').addEventListener('input', debounce(() => renderMonsterTable(), 200));
