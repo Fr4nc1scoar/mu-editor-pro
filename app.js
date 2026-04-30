@@ -823,6 +823,7 @@ function renderTable() {
     updateFileInfo();
     updatePreview();
     updateSelectionButtons();
+    if (typeof MapViewer !== 'undefined') MapViewer.drawSpawns();
 }
 
 function updatePreview() {
@@ -1125,6 +1126,7 @@ function saveSpawn() {
     populateMapFilter();
     renderTable();
     closeSpawnModal();
+    if (typeof MapViewer !== 'undefined') MapViewer.render();
 }
 
 // ─────────────────────────────────────────
@@ -1170,6 +1172,12 @@ function doImport(text, filename, fileHandle) {
     populateMapFilter();
     renderTable();
     closeImportModal();
+
+    // Auto-select map for visualizer
+    if (typeof MapViewer !== 'undefined' && mapId !== null) {
+        MapViewer.render(mapId);
+        document.getElementById('mapNameDisplay').textContent = `Mapa: ${getMapName(mapId)}`;
+    }
 
     if (newSpawns.length === 0) {
         showToast(`📂 Archivo vacío: ${filename} — listo para agregar spawns`, 'info');

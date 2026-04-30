@@ -149,6 +149,19 @@
                     <span>Seleccionar todo</span>
                 </label>
                 <span class="table-count" id="tableCount">0 spawns</span>
+                <button class="btn btn-sm btn-outline" id="btnToggleMap" style="margin-left: auto; margin-right: 10px;">🗺️ Ver Mapa</button>
+            </div>
+            
+            <!-- MAP VISUALIZER (Hidden by default) -->
+            <div id="mapVisualizer" class="map-visualizer" style="display:none">
+                <div class="map-controls">
+                    <span id="mapNameDisplay">Mapa: Lorencia</span>
+                    <span id="mapCoordsDisplay">X: 0, Y: 0</span>
+                </div>
+                <div class="map-canvas-wrapper">
+                    <canvas id="mapCanvas" width="512" height="512"></canvas>
+                    <div id="mapOverlay" class="map-overlay"></div>
+                </div>
             </div>
             <div class="table-scroll">
                 <table id="spawnTable" class="table-data">
@@ -907,6 +920,7 @@
     <input type="file" id="hiddenFileInput" accept=".txt" style="display:none">
 
     <script src="itemData.js"></script>
+    <script src="mapViewer.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
