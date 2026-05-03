@@ -1854,3 +1854,35 @@ kbd {
     100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(240, 178, 50, 0); }
 }
 
+/* ═══════════════════════ SPLIT VIEW LAYOUT ═══════════════════════ */
+.content-wrapper {
+    display: flex;
+    flex-direction: row;
+    height: calc(100vh - 120px);
+    overflow: hidden;
+}
+
+.table-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 50%;
+    border-right: 1px solid var(--border-color);
+}
+
+.table-scroll {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.map-visualizer {
+    background: var(--bg-deep);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 560px; /* Fixed width for map */
+    flex-shrink: 0;
+    overflow-y: auto;
+}

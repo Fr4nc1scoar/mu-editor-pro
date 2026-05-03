@@ -94,9 +94,9 @@
                 <span class="btn-icon">📝</span>
                 <span class="btn-label">Vista Previa</span>
             </button>
-            <button class="btn btn-outline" id="btnToggleMap" title="Ver mapa interactivo">
+            <button class="btn btn-accent" id="btnToggleMap" title="Mostrar/ocultar mapa interactivo">
                 <span class="btn-icon">🗺️</span>
-                <span class="btn-label">Ver Mapa</span>
+                <span class="btn-label">Ocultar Mapa</span>
             </button>
         </div>
         <div class="toolbar-group">
@@ -145,18 +145,42 @@
             </div>
         </div>
 
-        <!-- SPAWN TABLE -->
-        <div id="tableContainer" class="table-container" style="display:none">
-            <div class="table-header-bar">
-                <label class="select-all-label">
-                    <input type="checkbox" id="selectAll">
-                    <span>Seleccionar todo</span>
-                </label>
-                <span class="table-count" id="tableCount">0 spawns</span>
+        <!-- CONTENT WRAPPER -->
+        <div id="contentWrapper" class="content-wrapper" style="display:none">
+            <!-- SPAWN TABLE -->
+            <div id="tableContainer" class="table-container">
+                <div class="table-header-bar">
+                    <label class="select-all-label">
+                        <input type="checkbox" id="selectAll">
+                        <span>Seleccionar todo</span>
+                    </label>
+                    <span class="table-count" id="tableCount">0 spawns</span>
+                </div>
+                
+                <div class="table-scroll">
+                    <table id="spawnTable" class="table-data">
+                        <thead>
+                            <tr>
+                                <th class="col-check"><input type="checkbox" id="selectAllHead"></th>
+                                <th class="col-section sortable" data-sort="section">Sec</th>
+                                <th class="col-id sortable" data-sort="mobId">Mob ID</th>
+                                <th class="col-name sortable" data-sort="name">Nombre</th>
+                                <th class="col-map sortable" data-sort="mapId">Mapa</th>
+                                <th class="col-range">Rango</th>
+                                <th class="col-pos">Pos / Área</th>
+                                <th class="col-dir">Dir</th>
+                                <th class="col-qty sortable" data-sort="quantity">Cant</th>
+                                <th class="col-actions">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="spawnTableBody">
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            
-            <!-- MAP VISUALIZER (Hidden by default) -->
-            <div id="mapVisualizer" class="map-visualizer" style="display:none">
+
+            <!-- MAP VISUALIZER -->
+            <div id="mapVisualizer" class="map-visualizer">
                 <div class="map-controls">
                     <span id="mapNameDisplay">Mapa: Lorencia</span>
                     <span id="mapCoordsDisplay">X: 0, Y: 0</span>
@@ -165,26 +189,6 @@
                     <canvas id="mapCanvas" width="512" height="512"></canvas>
                     <div id="mapOverlay" class="map-overlay"></div>
                 </div>
-            </div>
-            <div class="table-scroll">
-                <table id="spawnTable" class="table-data">
-                    <thead>
-                        <tr>
-                            <th class="col-check"><input type="checkbox" id="selectAllHead"></th>
-                            <th class="col-section sortable" data-sort="section">Sec</th>
-                            <th class="col-id sortable" data-sort="mobId">Mob ID</th>
-                            <th class="col-name sortable" data-sort="name">Nombre</th>
-                            <th class="col-map sortable" data-sort="mapId">Mapa</th>
-                            <th class="col-range">Rango</th>
-                            <th class="col-pos">Pos / Área</th>
-                            <th class="col-dir">Dir</th>
-                            <th class="col-qty sortable" data-sort="quantity">Cant</th>
-                            <th class="col-actions">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="spawnTableBody">
-                    </tbody>
-                </table>
             </div>
         </div>
 

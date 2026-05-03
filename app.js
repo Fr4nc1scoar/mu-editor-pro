@@ -773,7 +773,7 @@ function renderTable() {
     // Show table if spawns exist OR if a file is loaded (even if empty)
     const showTable = state.spawns.length > 0 || state.currentFile !== null;
     document.getElementById('welcomeScreen').style.display = showTable ? 'none' : 'flex';
-    document.getElementById('tableContainer').style.display = showTable ? 'flex' : 'none';
+    document.getElementById('contentWrapper').style.display = showTable ? 'flex' : 'none';
 
     // Update count
     document.getElementById('tableCount').textContent = `${filtered.length} de ${state.spawns.length} spawns`;
