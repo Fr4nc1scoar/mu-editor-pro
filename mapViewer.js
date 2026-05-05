@@ -159,6 +159,10 @@ const MapViewer = {
         let section = 0;
         if (sectionBtn) section = parseInt(sectionBtn.dataset.section);
         
+        // Ensure the modal's map matches the visualizer's map
+        const inputMap = document.getElementById('inputMapId');
+        if (inputMap) inputMap.value = this.currentMapId;
+        
         if (section === 0 || section === 2) {
             const inputX = document.getElementById('inputPosX');
             const inputY = document.getElementById('inputPosY');

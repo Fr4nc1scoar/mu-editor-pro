@@ -912,12 +912,18 @@ function openSpawnModal(spawn = null) {
     state.editingId = spawn ? spawn._id : null;
     title.textContent = spawn ? '✏️ Editar Spawn' : '➕ Agregar Spawn';
 
-    // Reset
-    currentMobId = null;
-    document.getElementById('mobSearch').value = '';
-    document.getElementById('mobSearch').style.display = 'block';
-    document.getElementById('mobSearchResults').style.display = 'none';
-    document.getElementById('selectedMob').style.display = 'none';
+    // Do not reset currentMobId if we are adding a new spawn and one is already selected!
+    // This allows rapid placement on the map.
+    if (!spawn && currentMobId !== null) {
+        // Keep it, just re-trigger selection UI
+        setTimeout(() => selectMob(currentMobId), 10);
+    } else {
+        currentMobId = null;
+        document.getElementById('mobSearch').value = '';
+        document.getElementById('mobSearch').style.display = 'block';
+        document.getElementById('mobSearchResults').style.display = 'none';
+        document.getElementById('selectedMob').style.display = 'none';
+    }
 
     if (spawn) {
         // Fill form with existing data
