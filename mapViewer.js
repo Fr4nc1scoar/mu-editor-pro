@@ -285,7 +285,7 @@ const MapViewer = {
             }
         }
         const display = document.getElementById('mapHoverDisplay');
-        if (display) display.textContent = hoveredTitle;
+        if (display) display.textContent = hoveredTitle || '\u00A0';
     },
     
     handleMapClick(e) {

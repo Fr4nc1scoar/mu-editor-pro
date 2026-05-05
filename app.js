@@ -1138,7 +1138,18 @@ function saveSpawn() {
     markModified();
     populateMapFilter();
     renderTable();
-    closeSpawnModal();
+    
+    const fastMode = document.getElementById('fastModeToggle');
+    const isFastMode = fastMode && fastMode.checked;
+    
+    if (isFastMode) {
+        // Just hide modal, keep mob selected for the next fast click
+        document.getElementById('modalSpawn').style.display = 'none';
+        state.editingId = null;
+    } else {
+        closeSpawnModal();
+    }
+    
     if (typeof MapViewer !== 'undefined') MapViewer.render();
 }
 
