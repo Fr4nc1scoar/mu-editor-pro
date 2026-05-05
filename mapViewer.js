@@ -23,6 +23,8 @@ const MapViewer = {
     setupEventListeners() {
         const wrapper = document.querySelector('.map-canvas-wrapper');
         
+        wrapper.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+        window.addEventListener('mouseup', (e) => this.handleMouseUp(e));
         wrapper.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         wrapper.addEventListener('click', (e) => this.handleMapClick(e));
         
@@ -138,6 +140,101 @@ const MapViewer = {
         this.ctx.drawImage(tempCanvas, 0, 0, 256, 256, 0, 0, this.canvas.width, this.canvas.height);
     },
     
+    handleMouseDown(e) {
+        if (e.button !== 0) return; // Only left click
+        const fastMode = document.getElementById('fastModeToggle');
+        const fastSelect = document.getElementById('fastModeSection');
+        const isFastMode = fastMode && fastMode.checked;
+        const section = fastSelect ? parseInt(fastSelect.value) : 0;
+        const hasSelectedMob = typeof currentMobId !== 'undefined' && currentMobId !== null;
+
+        if (isFastMode && section === 1 && hasSelectedMob) {
+            const rect = this.canvas.getBoundingClientRect();
+            const scaleX = this.canvas.width / rect.width;
+            const scaleY = this.canvas.height / rect.height;
+            const x = Math.floor((e.clientX - rect.left) * scaleX / this.scale);
+            const y = Math.floor((e.clientY - rect.top) * scaleY / this.scale);
+
+            this.isDragging = true;
+            this.dragStartX = x;
+            this.dragStartY = y;
+            
+            const sel = document.getElementById('mapSelection');
+            if (sel) {
+                sel.style.display = 'block';
+                sel.style.left = `${x * this.scale}px`;
+                sel.style.top = `${y * this.scale}px`;
+                sel.style.width = `0px`;
+                sel.style.height = `0px`;
+            }
+        }
+    },
+    
+    handleMouseUp(e) {
+        if (!this.isDragging) return;
+        this.isDragging = false;
+        
+        const sel = document.getElementById('mapSelection');
+        if (sel) sel.style.display = 'none';
+
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        let x = Math.floor((e.clientX - rect.left) * scaleX / this.scale);
+        let y = Math.floor((e.clientY - rect.top) * scaleY / this.scale);
+        
+        // Clamp to map boundaries
+        x = Math.max(0, Math.min(255, x));
+        y = Math.max(0, Math.min(255, y));
+        
+        const minX = Math.min(this.dragStartX, x);
+        const minY = Math.min(this.dragStartY, y);
+        let maxX = Math.max(this.dragStartX, x);
+        let maxY = Math.max(this.dragStartY, y);
+        
+        // If they just clicked without dragging, make it a 1x1 spot
+        if (minX === maxX && minY === maxY) {
+            // we leave it as 1x1, or we could expand it
+            // actually user requested "que yo mismo lo dibuje", so 1x1 is fine if they don't drag
+        }
+        
+        // Sync modal tabs state so saveSpawn works correctly
+        const sectionBtns = document.querySelectorAll('.section-btn');
+        sectionBtns.forEach(btn => {
+            if (parseInt(btn.dataset.section) === 1) {
+                btn.classList.add('active');
+                const posFields = document.getElementById('positionFields');
+                const areaFields = document.getElementById('areaFields');
+                if (posFields && areaFields) {
+                    posFields.style.display = 'none';
+                    areaFields.style.display = 'block';
+                }
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        
+        const inputMap = document.getElementById('inputMapId');
+        if (inputMap) inputMap.value = this.currentMapId;
+        
+        const startXEl = document.getElementById('inputBeginX');
+        const startYEl = document.getElementById('inputBeginY');
+        const endXEl = document.getElementById('inputEndX');
+        const endYEl = document.getElementById('inputEndY');
+        if (startXEl) startXEl.value = minX;
+        if (startYEl) startYEl.value = minY;
+        if (endXEl) endXEl.value = maxX;
+        if (endYEl) endYEl.value = maxY;
+        
+        if (typeof showToast === 'function') showToast(`📍 Spot dibujado: ${minX},${minY} a ${maxX},${maxY}`, 'info');
+        if (typeof state !== 'undefined') state.editingId = null;
+        if (typeof saveSpawn === 'function') saveSpawn();
+        
+        // Set flag to ignore subsequent click event
+        this.wasDragging = true;
+        setTimeout(() => { this.wasDragging = false; }, 100);
+    },
+    
     handleMouseMove(e) {
         const rect = this.canvas.getBoundingClientRect();
         const scaleX = this.canvas.width / rect.width;
@@ -146,6 +243,22 @@ const MapViewer = {
         const y = Math.floor((e.clientY - rect.top) * scaleY / this.scale);
         
         document.getElementById('mapCoordsDisplay').textContent = `X: ${x}, Y: ${y}`;
+        
+        if (this.isDragging) {
+            const sel = document.getElementById('mapSelection');
+            if (sel) {
+                const minX = Math.min(this.dragStartX, x);
+                const minY = Math.min(this.dragStartY, y);
+                const maxX = Math.max(this.dragStartX, x);
+                const maxY = Math.max(this.dragStartY, y);
+                
+                sel.style.left = `${minX * this.scale}px`;
+                sel.style.top = `${minY * this.scale}px`;
+                sel.style.width = `${(maxX - minX + 1) * this.scale}px`;
+                sel.style.height = `${(maxY - minY + 1) * this.scale}px`;
+            }
+            return; // Don't compute hover tooltips while dragging
+        }
         
         // Hover Detection
         let hoveredTitle = '';
@@ -174,6 +287,8 @@ const MapViewer = {
     },
     
     handleMapClick(e) {
+        if (this.wasDragging) return; // Handled by mouseup
+        
         const rect = this.canvas.getBoundingClientRect();
         const scaleX = this.canvas.width / rect.width;
         const scaleY = this.canvas.height / rect.height;
@@ -190,6 +305,15 @@ const MapViewer = {
         if (isFastMode) {
             const fastSelect = document.getElementById('fastModeSection');
             if (fastSelect) section = parseInt(fastSelect.value);
+            
+            // IF IT'S A SPOT, WE SHOULD HAVE DRAGGED! 
+            // But if we didn't drag, handleMouseUp handles it anyway if section === 1.
+            // Wait, handleMouseUp only triggers if this.isDragging was true.
+            // But if fastModeSection === 1, handleMouseDown sets isDragging to true!
+            // So for section === 1, handleMouseUp ALWAYS handles it.
+            if (section === 1 && hasSelectedMob) {
+                return;
+            }
             
             // Sync modal tabs state so saveSpawn works correctly
             const sectionBtns = document.querySelectorAll('.section-btn');
@@ -234,14 +358,11 @@ const MapViewer = {
             if (inputX) inputX.value = x;
             if (inputY) inputY.value = y;
         } else {
+            // Handled mostly by drag now, but if they click from modal, we fill start.
             const startX = document.getElementById('inputBeginX');
             const startY = document.getElementById('inputBeginY');
-            const endX = document.getElementById('inputEndX');
-            const endY = document.getElementById('inputEndY');
             if (startX) startX.value = x;
             if (startY) startY.value = y;
-            if (endX) endX.value = x + 5;
-            if (endY) endY.value = y + 5;
         }
         if (typeof showToast === 'function') showToast(`📍 Coordenadas capturadas: ${x}, ${y}`, 'info');
         
