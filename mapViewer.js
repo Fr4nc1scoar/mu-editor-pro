@@ -39,7 +39,7 @@ const MapViewer = {
     getAttFileName(mapId) {
         // Map ID to Terrain ID mapping (usually mapId + 1)
         const terrainId = mapId + 1;
-        return `assets/maps/att/Terrain${terrainId}.att`;
+        return `Terrain/Terrain${terrainId}.att`;
     },
 
     async loadMap(mapId) {
