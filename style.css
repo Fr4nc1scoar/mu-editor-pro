@@ -1844,6 +1844,16 @@ kbd {
 .map-dot.npc { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
 .map-dot.spot { background: var(--accent-color); box-shadow: 0 0 10px var(--accent-color); border-radius: 2px; }
 .map-dot.monster { background: var(--danger-color); box-shadow: 0 0 10px var(--danger-color); }
+
+.map-area {
+    position: absolute;
+    background: rgba(10, 200, 255, 0.3);
+    border: 1px solid rgba(10, 200, 255, 0.8);
+    pointer-events: auto; /* To allow hover */
+    z-index: 5;
+    transform: none; /* Override dot transform */
+    border-radius: 2px;
+}
 .map-dot.active { 
     width: 14px; 
     height: 14px; 

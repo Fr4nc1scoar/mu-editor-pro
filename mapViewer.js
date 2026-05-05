@@ -213,15 +213,36 @@ const MapViewer = {
             else if (spawn.section === 1) dot.classList.add('spot');
             else dot.classList.add('monster');
             
-            // Positioning (using start coordinates for spots)
-            const x = (spawn.section === 1 ? spawn.beginX : spawn.posX) * this.scale;
-            const y = (spawn.section === 1 ? spawn.beginY : spawn.posY) * this.scale;
+            let titleText = typeof getMonsterName === 'function' ? getMonsterName(spawn.mobId) : spawn.name;
+
+            if (spawn.section === 1) {
+                // Draw as an area
+                const beginX = spawn.beginX * this.scale;
+                const beginY = spawn.beginY * this.scale;
+                const endX = spawn.endX * this.scale;
+                const endY = spawn.endY * this.scale;
+                
+                const width = Math.max((endX - beginX), this.scale * 2); // Minimum width 2x scale
+                const height = Math.max((endY - beginY), this.scale * 2);
+                
+                dot.classList.add('map-area');
+                dot.style.left = `${beginX}px`;
+                dot.style.top = `${beginY}px`;
+                dot.style.width = `${width}px`;
+                dot.style.height = `${height}px`;
+                
+                titleText += ` (Spot: ${spawn.beginX},${spawn.beginY} a ${spawn.endX},${spawn.endY})`;
+            } else {
+                // Draw as a single point
+                const x = spawn.posX * this.scale;
+                const y = spawn.posY * this.scale;
+                
+                dot.style.left = `${x}px`;
+                dot.style.top = `${y}px`;
+                titleText += ` (${spawn.posX}, ${spawn.posY})`;
+            }
             
-            dot.style.left = `${x}px`;
-            dot.style.top = `${y}px`;
-            
-            const mobName = typeof getMonsterName === 'function' ? getMonsterName(spawn.mobId) : spawn.name;
-            dot.setAttribute('data-title', `${mobName} (${x/this.scale}, ${y/this.scale})`);
+            dot.setAttribute('data-title', titleText);
             
             this.overlay.appendChild(dot);
         });
