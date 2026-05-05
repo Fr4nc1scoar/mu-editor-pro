@@ -24,6 +24,22 @@ const MapViewer = {
         this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         this.canvas.addEventListener('click', (e) => this.handleMapClick(e));
         
+        // Tooltip hover handling
+        this.overlay.addEventListener('mouseover', (e) => {
+            if (e.target.classList.contains('map-dot')) {
+                const title = e.target.getAttribute('data-title');
+                const display = document.getElementById('mapHoverDisplay');
+                if (display) display.textContent = title || '';
+            }
+        });
+        
+        this.overlay.addEventListener('mouseout', (e) => {
+            if (e.target.classList.contains('map-dot')) {
+                const display = document.getElementById('mapHoverDisplay');
+                if (display) display.textContent = '';
+            }
+        });
+        
         document.getElementById('btnToggleMap').addEventListener('click', () => {
             const viz = document.getElementById('mapVisualizer');
             const isHidden = window.getComputedStyle(viz).display === 'none';
@@ -192,19 +208,20 @@ const MapViewer = {
             const dot = document.createElement('div');
             dot.className = 'map-dot';
             
-            // Differentiate NPC vs Monster
+            // Differentiate NPC vs Spot vs Monster
             if (spawn.section === 0) dot.classList.add('npc');
+            else if (spawn.section === 1) dot.classList.add('spot');
             else dot.classList.add('monster');
             
             // Positioning (using start coordinates for spots)
-            const x = (spawn.section === 1 ? spawn.startX : spawn.posX) * this.scale;
-            const y = (spawn.section === 1 ? spawn.startY : spawn.posY) * this.scale;
+            const x = (spawn.section === 1 ? spawn.beginX : spawn.posX) * this.scale;
+            const y = (spawn.section === 1 ? spawn.beginY : spawn.posY) * this.scale;
             
             dot.style.left = `${x}px`;
             dot.style.top = `${y}px`;
             
             const mobName = typeof getMonsterName === 'function' ? getMonsterName(spawn.mobId) : spawn.name;
-            dot.title = `${mobName} (${x/this.scale}, ${y/this.scale})`;
+            dot.setAttribute('data-title', `${mobName} (${x/this.scale}, ${y/this.scale})`);
             
             this.overlay.appendChild(dot);
         });

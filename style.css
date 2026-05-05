@@ -1810,6 +1810,8 @@ kbd {
     cursor: crosshair;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     background: #000;
+    flex-shrink: 0;
+    margin: 0 auto;
 }
 
 #mapCanvas {
@@ -1840,6 +1842,7 @@ kbd {
 }
 
 .map-dot.npc { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+.map-dot.spot { background: var(--accent-color); box-shadow: 0 0 10px var(--accent-color); border-radius: 2px; }
 .map-dot.monster { background: var(--danger-color); box-shadow: 0 0 10px var(--danger-color); }
 .map-dot.active { 
     width: 14px; 
