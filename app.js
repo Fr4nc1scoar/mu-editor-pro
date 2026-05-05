@@ -1017,6 +1017,10 @@ function selectMob(mobId) {
     if (!commentInput.value || commentInput.value.startsWith('//')) {
         commentInput.value = getMonsterName(mobId);
     }
+    
+    // Sync fast select
+    const fastSelect = document.getElementById('fastMobSelect');
+    if (fastSelect) fastSelect.value = mobId;
 }
 
 function clearMobSelection() {
@@ -1025,6 +1029,9 @@ function clearMobSelection() {
     document.getElementById('mobSearch').style.display = 'block';
     document.getElementById('selectedMob').style.display = 'none';
     document.getElementById('mobSearch').focus();
+    
+    const fastSelect = document.getElementById('fastMobSelect');
+    if (fastSelect) fastSelect.value = "";
 }
 
 function handleMobSearch(query) {
@@ -1650,6 +1657,7 @@ function debounce(fn, ms) {
 // ─────────────────────────────────────────
 function init() {
     populateMapSelect();
+    populateFastMobSelect();
     loadFromLocal();
     populateMapFilter();
     renderTable();
@@ -1660,6 +1668,31 @@ function init() {
     if (state.spawns.length > 0) {
         showToast(`📂 Sesión restaurada: ${state.spawns.length} spawns`, 'info');
     }
+}
+
+function populateFastMobSelect() {
+    const select = document.getElementById('fastMobSelect');
+    if (!select) return;
+    
+    // Sort MONSTER_LIST by id for the select
+    const sorted = [...MONSTER_LIST].sort((a, b) => a.id - b.id);
+    
+    let html = '<option value="">-- Monstruo --</option>';
+    for (const m of sorted) {
+        html += `<option value="${m.id}">${pad(m.id)} - ${m.name}</option>`;
+    }
+    select.innerHTML = html;
+    
+    select.addEventListener('change', function() {
+        if (this.value) {
+            selectMob(parseInt(this.value));
+            if (typeof showToast === 'function') {
+                showToast(`Monstruo seleccionado: ${getMonsterName(parseInt(this.value))}`, 'success');
+            }
+        } else {
+            clearMobSelection();
+        }
+    });
 }
 
 // Start

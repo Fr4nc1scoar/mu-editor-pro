@@ -186,10 +186,13 @@
                     <label style="cursor:pointer; font-size:12px; margin-left:10px; color:var(--accent-color)" title="Añadir instantáneamente al hacer clic en el mapa">
                         <input type="checkbox" id="fastModeToggle" checked> ⚡ Rápido:
                     </label>
-                    <select id="fastModeSection" style="background:var(--bg-lighter); color:var(--text-light); border:1px solid var(--border-color); border-radius:4px; padding:2px 5px; margin-right:10px; font-size:12px; outline:none;">
+                    <select id="fastModeSection" style="background:var(--bg-lighter); color:var(--text-light); border:1px solid var(--border-color); border-radius:4px; padding:2px 5px; margin-right:5px; font-size:12px; outline:none;">
                         <option value="0">NPC</option>
-                        <option value="1">Spot (5x5)</option>
+                        <option value="1">Spot (Dibujar)</option>
                         <option value="2" selected>Monstruo</option>
+                    </select>
+                    <select id="fastMobSelect" style="max-width:140px; background:var(--bg-lighter); color:var(--gold); font-weight:bold; border:1px solid var(--border-color); border-radius:4px; padding:2px 5px; margin-right:10px; font-size:12px; outline:none;">
+                        <option value="">-- Monstruo --</option>
                     </select>
                     <span id="mapHoverDisplay" style="color: var(--gold); font-weight: bold; flex: 1; text-align: center;"></span>
                     <span id="mapCoordsDisplay">X: 0, Y: 0</span>

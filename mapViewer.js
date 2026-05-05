@@ -142,6 +142,8 @@ const MapViewer = {
     
     handleMouseDown(e) {
         if (e.button !== 0) return; // Only left click
+        e.preventDefault(); // Prevent native browser drag operations
+        
         const fastMode = document.getElementById('fastModeToggle');
         const fastSelect = document.getElementById('fastModeSection');
         const isFastMode = fastMode && fastMode.checked;
@@ -320,7 +322,6 @@ const MapViewer = {
             sectionBtns.forEach(btn => {
                 if (parseInt(btn.dataset.section) === section) {
                     btn.classList.add('active');
-                    // Hide/Show correct fields internally
                     const posFields = document.getElementById('positionFields');
                     const areaFields = document.getElementById('areaFields');
                     if (posFields && areaFields) {
@@ -336,13 +337,16 @@ const MapViewer = {
                     btn.classList.remove('active');
                 }
             });
+            
+            if (!hasSelectedMob) {
+                if (typeof showToast === 'function') showToast('⚠️ Por favor, selecciona un monstruo en el menú superior primero.', 'warning');
+                return;
+            }
         } else {
             const sectionBtn = document.querySelector('.section-btn.active');
             if (sectionBtn) section = parseInt(sectionBtn.dataset.section);
-        }
-        
-        // If not in fast mode, OR we don't have a mob selected, open modal
-        if (!isFastMode || !hasSelectedMob) {
+            
+            // If fast mode is OFF, always open modal
             if (document.getElementById('modalSpawn').style.display === 'none') {
                 if (typeof openSpawnModal === 'function') openSpawnModal();
             }
