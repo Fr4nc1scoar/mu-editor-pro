@@ -154,20 +154,31 @@ const MapViewer = {
     
     handleMouseMove(e) {
         const rect = this.canvas.getBoundingClientRect();
-        const x = Math.floor((e.clientX - rect.left) / this.scale);
-        const y = Math.floor((e.clientY - rect.top) / this.scale);
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        const x = Math.floor((e.clientX - rect.left) * scaleX / this.scale);
+        const y = Math.floor((e.clientY - rect.top) * scaleY / this.scale);
         
         document.getElementById('mapCoordsDisplay').textContent = `X: ${x}, Y: ${y}`;
     },
     
     handleMapClick(e) {
         const rect = this.canvas.getBoundingClientRect();
-        const x = Math.floor((e.clientX - rect.left) / this.scale);
-        const y = Math.floor((e.clientY - rect.top) / this.scale);
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        const x = Math.floor((e.clientX - rect.left) * scaleX / this.scale);
+        const y = Math.floor((e.clientY - rect.top) * scaleY / this.scale);
         
-        // Open modal if it's hidden, or just fill the coords
-        if (document.getElementById('modalSpawn').style.display === 'none') {
-            if (typeof openSpawnModal === 'function') openSpawnModal();
+        // Fast mode bypass: Check if we have a monster selected and fast mode is ON
+        const fastMode = document.getElementById('fastModeToggle');
+        const isFastMode = fastMode && fastMode.checked;
+        const hasSelectedMob = typeof currentMobId !== 'undefined' && currentMobId !== null;
+        
+        // If not in fast mode, OR we don't have a mob selected, open modal
+        if (!isFastMode || !hasSelectedMob) {
+            if (document.getElementById('modalSpawn').style.display === 'none') {
+                if (typeof openSpawnModal === 'function') openSpawnModal();
+            }
         }
         
         // Fill coordinates based on current section
@@ -185,8 +196,8 @@ const MapViewer = {
             if (inputX) inputX.value = x;
             if (inputY) inputY.value = y;
         } else {
-            const startX = document.getElementById('inputStartX');
-            const startY = document.getElementById('inputStartY');
+            const startX = document.getElementById('inputBeginX');
+            const startY = document.getElementById('inputBeginY');
             const endX = document.getElementById('inputEndX');
             const endY = document.getElementById('inputEndY');
             if (startX) startX.value = x;
@@ -194,8 +205,12 @@ const MapViewer = {
             if (endX) endX.value = x + 5;
             if (endY) endY.value = y + 5;
         }
-        
         if (typeof showToast === 'function') showToast(`📍 Coordenadas capturadas: ${x}, ${y}`, 'info');
+        
+        if (isFastMode && hasSelectedMob) {
+            if (typeof state !== 'undefined') state.editingId = null;
+            if (typeof saveSpawn === 'function') saveSpawn();
+        }
     },
     
     drawSpawns() {

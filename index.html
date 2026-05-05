@@ -183,6 +183,9 @@
             <div id="mapVisualizer" class="map-visualizer">
                 <div class="map-controls">
                     <span id="mapNameDisplay">Mapa: Lorencia</span>
+                    <label style="cursor:pointer; font-size:12px; margin:0 10px; color:var(--accent-color)" title="Si está activo, al hacer clic en el mapa añadirás instantáneamente el último monstruo seleccionado.">
+                        <input type="checkbox" id="fastModeToggle" checked> ⚡ Añadido Directo
+                    </label>
                     <span id="mapHoverDisplay" style="color: var(--gold); font-weight: bold; flex: 1; text-align: center;"></span>
                     <span id="mapCoordsDisplay">X: 0, Y: 0</span>
                 </div>
@@ -928,7 +931,7 @@
     <input type="file" id="hiddenFileInput" accept=".txt" style="display:none">
 
     <script src="itemData.js"></script>
-    <script src="mapViewer.js?v=3"></script>
-    <script src="app.js?v=3"></script>
+    <script src="mapViewer.js?v=4"></script>
+    <script src="app.js?v=4"></script>
 </body>
 </html>
