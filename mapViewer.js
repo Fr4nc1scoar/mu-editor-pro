@@ -21,24 +21,10 @@ const MapViewer = {
     },
     
     setupEventListeners() {
-        this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
-        this.canvas.addEventListener('click', (e) => this.handleMapClick(e));
+        const wrapper = document.querySelector('.map-canvas-wrapper');
         
-        // Tooltip hover handling
-        this.overlay.addEventListener('mouseover', (e) => {
-            if (e.target.classList.contains('map-dot')) {
-                const title = e.target.getAttribute('data-title');
-                const display = document.getElementById('mapHoverDisplay');
-                if (display) display.textContent = title || '';
-            }
-        });
-        
-        this.overlay.addEventListener('mouseout', (e) => {
-            if (e.target.classList.contains('map-dot')) {
-                const display = document.getElementById('mapHoverDisplay');
-                if (display) display.textContent = '';
-            }
-        });
+        wrapper.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        wrapper.addEventListener('click', (e) => this.handleMapClick(e));
         
         document.getElementById('btnToggleMap').addEventListener('click', () => {
             const viz = document.getElementById('mapVisualizer');
@@ -160,6 +146,31 @@ const MapViewer = {
         const y = Math.floor((e.clientY - rect.top) * scaleY / this.scale);
         
         document.getElementById('mapCoordsDisplay').textContent = `X: ${x}, Y: ${y}`;
+        
+        // Hover Detection
+        let hoveredTitle = '';
+        if (typeof state !== 'undefined' && state.spawns) {
+            for (let i = state.spawns.length - 1; i >= 0; i--) {
+                const spawn = state.spawns[i];
+                if (spawn.mapId !== this.currentMapId) continue;
+                
+                const mobName = typeof getMonsterName === 'function' ? getMonsterName(spawn.mobId) : spawn.name;
+                
+                if (spawn.section === 1) {
+                    if (x >= spawn.beginX && x <= spawn.endX && y >= spawn.beginY && y <= spawn.endY) {
+                        hoveredTitle = `${mobName} (Spot: ${spawn.beginX},${spawn.beginY} a ${spawn.endX},${spawn.endY})`;
+                        break;
+                    }
+                } else {
+                    if (Math.abs(x - spawn.posX) <= 2 && Math.abs(y - spawn.posY) <= 2) {
+                        hoveredTitle = `${mobName} (${spawn.posX}, ${spawn.posY})`;
+                        break;
+                    }
+                }
+            }
+        }
+        const display = document.getElementById('mapHoverDisplay');
+        if (display) display.textContent = hoveredTitle;
     },
     
     handleMapClick(e) {
@@ -174,17 +185,44 @@ const MapViewer = {
         const isFastMode = fastMode && fastMode.checked;
         const hasSelectedMob = typeof currentMobId !== 'undefined' && currentMobId !== null;
         
+        let section = 0;
+        
+        if (isFastMode) {
+            const fastSelect = document.getElementById('fastModeSection');
+            if (fastSelect) section = parseInt(fastSelect.value);
+            
+            // Sync modal tabs state so saveSpawn works correctly
+            const sectionBtns = document.querySelectorAll('.section-btn');
+            sectionBtns.forEach(btn => {
+                if (parseInt(btn.dataset.section) === section) {
+                    btn.classList.add('active');
+                    // Hide/Show correct fields internally
+                    const posFields = document.getElementById('positionFields');
+                    const areaFields = document.getElementById('areaFields');
+                    if (posFields && areaFields) {
+                        if (section === 1) {
+                            posFields.style.display = 'none';
+                            areaFields.style.display = 'block';
+                        } else {
+                            posFields.style.display = 'block';
+                            areaFields.style.display = 'none';
+                        }
+                    }
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        } else {
+            const sectionBtn = document.querySelector('.section-btn.active');
+            if (sectionBtn) section = parseInt(sectionBtn.dataset.section);
+        }
+        
         // If not in fast mode, OR we don't have a mob selected, open modal
         if (!isFastMode || !hasSelectedMob) {
             if (document.getElementById('modalSpawn').style.display === 'none') {
                 if (typeof openSpawnModal === 'function') openSpawnModal();
             }
         }
-        
-        // Fill coordinates based on current section
-        const sectionBtn = document.querySelector('.section-btn.active');
-        let section = 0;
-        if (sectionBtn) section = parseInt(sectionBtn.dataset.section);
         
         // Ensure the modal's map matches the visualizer's map
         const inputMap = document.getElementById('inputMapId');

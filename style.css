@@ -1839,6 +1839,7 @@ kbd {
     box-shadow: 0 0 10px var(--accent-color);
     border: 1px solid #fff;
     z-index: 10;
+    pointer-events: none;
 }
 
 .map-dot.npc { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
@@ -1849,7 +1850,7 @@ kbd {
     position: absolute;
     background: rgba(10, 200, 255, 0.3);
     border: 1px solid rgba(10, 200, 255, 0.8);
-    pointer-events: auto; /* To allow hover */
+    pointer-events: none; /* Let hover pass through to wrapper */
     z-index: 5;
     transform: none; /* Override dot transform */
     border-radius: 2px;
