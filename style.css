@@ -1785,11 +1785,31 @@ kbd {
     justify-content: space-between;
     width: 100%;
     max-width: 512px;
+    height: 40px; /* Fixed height to prevent vertical jumps */
     background: var(--bg-secondary);
-    padding: 8px 15px;
+    padding: 0 15px;
     border-radius: 6px;
     font-size: 13px;
     border: 1px solid var(--border-color);
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#mapHoverDisplay {
+    color: var(--gold);
+    font-weight: bold;
+    flex: 1;
+    text-align: center;
+    padding: 0 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#mapCoordsDisplay {
+    min-width: 80px;
+    text-align: right;
 }
 
 #mapNameDisplay {

@@ -273,7 +273,7 @@ const MapViewer = {
                 
                 if (spawn.section === 1) {
                     if (x >= spawn.beginX && x <= spawn.endX && y >= spawn.beginY && y <= spawn.endY) {
-                        hoveredTitle = `${mobName} (Spot: ${spawn.beginX},${spawn.beginY} a ${spawn.endX},${spawn.endY})`;
+                        hoveredTitle = `${mobName} (S: ${spawn.beginX},${spawn.beginY}-${spawn.endX},${spawn.endY})`;
                         break;
                     }
                 } else {
