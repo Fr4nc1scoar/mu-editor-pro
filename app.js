@@ -973,6 +973,8 @@ function closeSpawnModal() {
     document.getElementById('modalSpawn').style.display = 'none';
     state.editingId = null;
     currentMobId = null;
+    const fastSelect = document.getElementById('fastMobSelect');
+    if (fastSelect) fastSelect.value = "";
 }
 
 function getActiveSection() {
@@ -1692,7 +1694,17 @@ function populateFastMobSelect() {
     for (const m of sorted) {
         html += `<option value="${m.id}">${pad(m.id)} - ${m.name}</option>`;
     }
+    
+    // Save current browser-restored value if any
+    const restoredValue = select.value;
     select.innerHTML = html;
+    
+    if (restoredValue) {
+        select.value = restoredValue;
+        selectMob(parseInt(restoredValue));
+    } else {
+        select.value = "";
+    }
     
     select.addEventListener('change', function() {
         if (this.value) {
