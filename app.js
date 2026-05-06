@@ -1678,6 +1678,14 @@ function init() {
     initMonsterStats();
     initBossDrops();
 
+    // Initialize MapViewer with the current map from state if available
+    if (typeof MapViewer !== 'undefined') {
+        MapViewer.init();
+        if (state.currentMapId !== undefined) {
+            MapViewer.render(state.currentMapId);
+        }
+    }
+
     if (state.spawns.length > 0) {
         showToast(`📂 Sesión restaurada: ${state.spawns.length} spawns`, 'info');
     }

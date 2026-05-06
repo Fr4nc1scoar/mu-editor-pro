@@ -427,5 +427,4 @@ const MapViewer = {
     }
 };
 
-// Initialize when the DOM is ready
-document.addEventListener('DOMContentLoaded', () => MapViewer.init());
+// Note: Initialized via app.js init() sequence to ensure state is loaded first.
