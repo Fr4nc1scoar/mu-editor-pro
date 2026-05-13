@@ -28,16 +28,7 @@ const MapViewer = {
         wrapper.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         wrapper.addEventListener('click', (e) => this.handleMapClick(e));
         
-        document.getElementById('btnToggleMap').addEventListener('click', () => {
-            const viz = document.getElementById('mapVisualizer');
-            const isHidden = window.getComputedStyle(viz).display === 'none';
-            viz.style.display = isHidden ? 'flex' : 'none';
-            
-            const label = document.getElementById('btnToggleMap').querySelector('.btn-label');
-            if (label) label.textContent = isHidden ? 'Ocultar Mapa' : 'Ver Mapa';
-            
-            if (isHidden) this.render();
-        });
+        // Removed btnToggleMap since map is now in modal
     },
     
     getAttFileName(mapId) {
