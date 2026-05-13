@@ -245,10 +245,10 @@ const MapViewer = {
                 const maxX = Math.max(this.dragStartX, x);
                 const maxY = Math.max(this.dragStartY, y);
                 
-                sel.style.left = `${minX * this.scale}px`;
-                sel.style.top = `${minY * this.scale}px`;
-                sel.style.width = `${(maxX - minX + 1) * this.scale}px`;
-                sel.style.height = `${(maxY - minY + 1) * this.scale}px`;
+                sel.style.left = `${(minX / 256) * 100}%`;
+                sel.style.top = `${(minY / 256) * 100}%`;
+                sel.style.width = `${((maxX - minX + 1) / 256) * 100}%`;
+                sel.style.height = `${((maxY - minY + 1) / 256) * 100}%`;
             }
             return; // Don't compute hover tooltips while dragging
         }
@@ -351,28 +351,28 @@ const MapViewer = {
 
             if (spawn.section === 1) {
                 // Draw as an area
-                const beginX = spawn.beginX * this.scale;
-                const beginY = spawn.beginY * this.scale;
-                const endX = spawn.endX * this.scale;
-                const endY = spawn.endY * this.scale;
+                const beginX = (spawn.beginX / 256) * 100;
+                const beginY = (spawn.beginY / 256) * 100;
+                const endX = (spawn.endX / 256) * 100;
+                const endY = (spawn.endY / 256) * 100;
                 
-                const width = Math.max((endX - beginX), this.scale * 2); // Minimum width 2x scale
-                const height = Math.max((endY - beginY), this.scale * 2);
+                const width = Math.max(endX - beginX, 0.8); // Min ~2px width visually
+                const height = Math.max(endY - beginY, 0.8);
                 
                 dot.classList.add('map-area');
-                dot.style.left = `${beginX}px`;
-                dot.style.top = `${beginY}px`;
-                dot.style.width = `${width}px`;
-                dot.style.height = `${height}px`;
+                dot.style.left = `${beginX}%`;
+                dot.style.top = `${beginY}%`;
+                dot.style.width = `${width}%`;
+                dot.style.height = `${height}%`;
                 
                 titleText += ` (Spot: ${spawn.beginX},${spawn.beginY} a ${spawn.endX},${spawn.endY})`;
             } else {
                 // Draw as a single point
-                const x = spawn.posX * this.scale;
-                const y = spawn.posY * this.scale;
+                const x = (spawn.posX / 256) * 100;
+                const y = (spawn.posY / 256) * 100;
                 
-                dot.style.left = `${x}px`;
-                dot.style.top = `${y}px`;
+                dot.style.left = `${x}%`;
+                dot.style.top = `${y}%`;
                 titleText += ` (${spawn.posX}, ${spawn.posY})`;
             }
             
