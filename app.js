@@ -959,10 +959,9 @@ function openSpawnModal(spawn = null) {
         document.getElementById('inputQuantity').value = '10';
         document.getElementById('inputComment').value = '';
 
-        // Default map from spawns
-        if (state.spawns.length > 0) {
-            document.getElementById('inputMapId').value = state.spawns[0].mapId;
-        }
+        // Default map: use first spawn's map if available, otherwise use map 0 (Lorencia)
+        const defaultMapId = state.spawns.length > 0 ? state.spawns[0].mapId : 0;
+        document.getElementById('inputMapId').value = defaultMapId;
     }
 
     modal.style.display = 'flex';
@@ -971,11 +970,8 @@ function openSpawnModal(spawn = null) {
     // Render the map in the split-view modal based on selected map
     if (typeof MapViewer !== 'undefined') {
         const mapSelect = document.getElementById('inputMapId');
-        if (mapSelect && mapSelect.value) {
-            MapViewer.render(parseInt(mapSelect.value));
-        } else if (state.currentMapId !== undefined) {
-            MapViewer.render(state.currentMapId);
-        }
+        const mapId = parseInt(mapSelect.value) || 0;
+        MapViewer.render(mapId);
     }
 }
 
@@ -1479,6 +1475,14 @@ function initEvents() {
         btn.addEventListener('click', () => {
             setActiveSection(parseInt(btn.dataset.section));
         });
+    });
+
+    // Map select inside modal → update the map viewer in real time
+    document.getElementById('inputMapId').addEventListener('change', function() {
+        const mapId = parseInt(this.value);
+        if (!isNaN(mapId) && typeof MapViewer !== 'undefined') {
+            MapViewer.render(mapId);
+        }
     });
 
     // Monster search — show full list on focus/click
