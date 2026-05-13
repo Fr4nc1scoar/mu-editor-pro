@@ -1682,18 +1682,19 @@ function init() {
     populateFastMobSelect();
     loadFromLocal();
     populateMapFilter();
-    renderTable();
-    initEvents();
-    initMonsterStats();
-    initBossDrops();
 
-    // Initialize MapViewer with the current map from state if available
+    // Initialize MapViewer early to avoid crashes when renderTable calls drawSpawns
     if (typeof MapViewer !== 'undefined') {
         MapViewer.init();
         if (state.currentMapId !== undefined) {
             MapViewer.render(state.currentMapId);
         }
     }
+
+    renderTable();
+    initEvents();
+    initMonsterStats();
+    initBossDrops();
 
     if (state.spawns.length > 0) {
         showToast(`📂 Sesión restaurada: ${state.spawns.length} spawns`, 'info');

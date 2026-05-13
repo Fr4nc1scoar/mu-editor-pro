@@ -332,6 +332,7 @@ const MapViewer = {
     },
     
     drawSpawns() {
+        if (!this.overlay) return;
         this.overlay.innerHTML = '';
         if (typeof state === 'undefined' || !state.spawns) return;
         
