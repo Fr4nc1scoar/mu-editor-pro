@@ -1812,9 +1812,12 @@ kbd {
 .map-controls {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     width: 100%;
     max-width: 512px;
-    height: 40px; /* Fixed height to prevent vertical jumps */
+    height: 40px;
+    min-height: 40px;
+    flex-shrink: 0;
     background: var(--bg-secondary);
     padding: 0 15px;
     border-radius: 6px;
