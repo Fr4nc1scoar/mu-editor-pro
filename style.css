@@ -1132,7 +1132,8 @@ select option {
     align-items: center;
     justify-content: center;
     padding: 10px;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 @keyframes slideUp {
@@ -1863,9 +1864,9 @@ kbd {
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     background: #000;
     flex-shrink: 0;
-    margin: auto;
-    width: min(100%, 65vh, 512px);
-    height: min(100%, 65vh, 512px);
+    margin: 0 auto;
+    width: min(100%, 55vh, 512px);
+    height: min(100%, 55vh, 512px);
     aspect-ratio: 1 / 1;
 }
 
