@@ -94,10 +94,6 @@
                 <span class="btn-icon">📝</span>
                 <span class="btn-label">Vista Previa</span>
             </button>
-            <button class="btn btn-accent" id="btnToggleMap" title="Mostrar/ocultar mapa interactivo">
-                <span class="btn-icon">🗺️</span>
-                <span class="btn-label">Ocultar Mapa</span>
-            </button>
         </div>
         <div class="toolbar-group">
             <div class="search-box">
@@ -179,30 +175,6 @@
                 </div>
             </div>
 
-            <!-- MAP VISUALIZER -->
-            <div id="mapVisualizer" class="map-visualizer">
-                <div class="map-controls">
-                    <span id="mapNameDisplay">Mapa: Lorencia</span>
-                    <label style="cursor:pointer; font-size:12px; margin-left:10px; color:var(--accent-color)" title="Añadir instantáneamente al hacer clic en el mapa">
-                        <input type="checkbox" id="fastModeToggle" checked> ⚡ Rápido:
-                    </label>
-                    <select id="fastModeSection" style="background:var(--bg-lighter); color:var(--text-light); border:1px solid var(--border-color); border-radius:4px; padding:2px 5px; margin-right:5px; font-size:12px; outline:none;">
-                        <option value="0">NPC</option>
-                        <option value="1">Spot (Dibujar)</option>
-                        <option value="2" selected>Monstruo</option>
-                    </select>
-                    <select id="fastMobSelect" style="max-width:140px; background:var(--bg-lighter); color:var(--gold); font-weight:bold; border:1px solid var(--border-color); border-radius:4px; padding:2px 5px; margin-right:10px; font-size:12px; outline:none;">
-                        <option value="">-- Monstruo --</option>
-                    </select>
-                    <span id="mapHoverDisplay"></span>
-                    <span id="mapCoordsDisplay">X: 0, Y: 0</span>
-                </div>
-                <div class="map-canvas-wrapper">
-                    <canvas id="mapCanvas" width="512" height="512"></canvas>
-                    <div id="mapOverlay" class="map-overlay"></div>
-                    <div id="mapSelection" class="map-selection" style="display:none; position:absolute; background:rgba(10, 200, 255, 0.4); border:1px dashed #fff; pointer-events:none; z-index:20;"></div>
-                </div>
-            </div>
         </div>
 
         <!-- PREVIEW PANEL (bottom) -->
@@ -221,12 +193,14 @@
 
     <!-- ═══════════════════════ MODAL: ADD/EDIT SPAWN ═══════════════════════ -->
     <div class="modal-overlay" id="modalSpawn" style="display:none">
-        <div class="modal" id="spawnModal">
+        <div class="modal modal-xl" id="spawnModal">
             <div class="modal-header">
-                <h3 id="modalTitle">➕ Agregar Spawn</h3>
+                <h3 id="modalTitle">➕ Agregar Spawn / Súper Editor</h3>
                 <button class="modal-close" id="modalClose">✕</button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body modal-split">
+                <!-- LEFT SIDE: FORM -->
+                <div class="modal-form-side">
                 <!-- Section Type Selector -->
                 <div class="form-section">
                     <label class="form-label">Tipo de Spawn</label>
@@ -341,10 +315,31 @@
                     <label class="form-label" for="inputComment">Comentario <span class="form-hint">(se completa automáticamente)</span></label>
                     <input type="text" id="inputComment" class="form-input" placeholder="//Nombre del monstruo">
                 </div>
+                </div> <!-- End modal-form-side -->
+                
+                <!-- RIGHT SIDE: MAP -->
+                <div class="modal-map-side">
+                    <!-- MAP VISUALIZER -->
+                    <div id="mapVisualizer" class="map-visualizer">
+                        <div class="map-controls">
+                            <span id="mapNameDisplay">Mapa: Lorencia</span>
+                            <label style="cursor:pointer; font-size:12px; margin-left:10px; color:var(--accent-color)" title="Añadir instantáneamente al hacer clic en el mapa">
+                                <input type="checkbox" id="fastModeToggle" checked> ⚡ Activo
+                            </label>
+                            <span id="mapHoverDisplay"></span>
+                            <span id="mapCoordsDisplay">X: 0, Y: 0</span>
+                        </div>
+                        <div class="map-canvas-wrapper">
+                            <canvas id="mapCanvas" width="512" height="512"></canvas>
+                            <div id="mapOverlay" class="map-overlay"></div>
+                            <div id="mapSelection" class="map-selection" style="display:none; position:absolute; background:rgba(10, 200, 255, 0.4); border:1px dashed #fff; pointer-events:none; z-index:20;"></div>
+                        </div>
+                    </div>
+                </div> <!-- End modal-map-side -->
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" id="btnCancelSpawn">Cancelar</button>
-                <button class="btn btn-accent" id="btnSaveSpawn">💾 Guardar Spawn</button>
+                <button class="btn btn-outline" id="btnCancelSpawn">Cerrar</button>
+                <button class="btn btn-accent" id="btnSaveSpawn">💾 Guardar Manualmente</button>
             </div>
         </div>
     </div>

@@ -43,7 +43,8 @@ const MapViewer = {
     getAttFileName(mapId) {
         // Map ID to Terrain ID mapping (usually mapId + 1)
         const terrainId = mapId + 1;
-        return `Terrain/Terrain${terrainId}.att`;
+        // Explicit relative path for Vercel compatibility
+        return `./Terrain/Terrain${terrainId}.att`;
     },
 
     async loadMap(mapId) {
@@ -145,9 +146,8 @@ const MapViewer = {
         e.preventDefault(); // Prevent native browser drag operations
         
         const fastMode = document.getElementById('fastModeToggle');
-        const fastSelect = document.getElementById('fastModeSection');
         const isFastMode = fastMode && fastMode.checked;
-        const section = fastSelect ? parseInt(fastSelect.value) : 0;
+        const section = typeof getActiveSection === 'function' ? getActiveSection() : 0;
         const hasSelectedMob = typeof currentMobId !== 'undefined' && currentMobId !== null;
 
         if (isFastMode && section === 1 && hasSelectedMob) {
@@ -230,7 +230,7 @@ const MapViewer = {
         
         if (typeof showToast === 'function') showToast(`📍 Spot dibujado: ${minX},${minY} a ${maxX},${maxY}`, 'info');
         if (typeof state !== 'undefined') state.editingId = null;
-        if (typeof saveSpawn === 'function') saveSpawn();
+        if (typeof saveSpawn === 'function') saveSpawn(true);
         
         // Set flag to ignore subsequent click event
         this.wasDragging = true;
@@ -302,53 +302,17 @@ const MapViewer = {
         const isFastMode = fastMode && fastMode.checked;
         const hasSelectedMob = typeof currentMobId !== 'undefined' && currentMobId !== null;
         
-        let section = 0;
+        let section = typeof getActiveSection === 'function' ? getActiveSection() : 0;
         
         if (isFastMode) {
-            const fastSelect = document.getElementById('fastModeSection');
-            if (fastSelect) section = parseInt(fastSelect.value);
-            
-            // IF IT'S A SPOT, WE SHOULD HAVE DRAGGED! 
-            // But if we didn't drag, handleMouseUp handles it anyway if section === 1.
-            // Wait, handleMouseUp only triggers if this.isDragging was true.
-            // But if fastModeSection === 1, handleMouseDown sets isDragging to true!
-            // So for section === 1, handleMouseUp ALWAYS handles it.
+            // If it's a spot, we rely on handleMouseUp (drag). If they just clicked, handleMouseUp handles the 1x1 spot anyway.
             if (section === 1 && hasSelectedMob) {
                 return;
             }
             
-            // Sync modal tabs state so saveSpawn works correctly
-            const sectionBtns = document.querySelectorAll('.section-btn');
-            sectionBtns.forEach(btn => {
-                if (parseInt(btn.dataset.section) === section) {
-                    btn.classList.add('active');
-                    const posFields = document.getElementById('positionFields');
-                    const areaFields = document.getElementById('areaFields');
-                    if (posFields && areaFields) {
-                        if (section === 1) {
-                            posFields.style.display = 'none';
-                            areaFields.style.display = 'block';
-                        } else {
-                            posFields.style.display = 'block';
-                            areaFields.style.display = 'none';
-                        }
-                    }
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-            
             if (!hasSelectedMob) {
-                if (typeof showToast === 'function') showToast('⚠️ Por favor, selecciona un monstruo en el menú superior primero.', 'warning');
+                if (typeof showToast === 'function') showToast('⚠️ Por favor, selecciona un monstruo en la lista de la izquierda.', 'warning');
                 return;
-            }
-        } else {
-            const sectionBtn = document.querySelector('.section-btn.active');
-            if (sectionBtn) section = parseInt(sectionBtn.dataset.section);
-            
-            // If fast mode is OFF, always open modal
-            if (document.getElementById('modalSpawn').style.display === 'none') {
-                if (typeof openSpawnModal === 'function') openSpawnModal();
             }
         }
         
@@ -372,7 +336,7 @@ const MapViewer = {
         
         if (isFastMode && hasSelectedMob) {
             if (typeof state !== 'undefined') state.editingId = null;
-            if (typeof saveSpawn === 'function') saveSpawn();
+            if (typeof saveSpawn === 'function') saveSpawn(true);
         }
     },
     

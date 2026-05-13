@@ -967,6 +967,16 @@ function openSpawnModal(spawn = null) {
 
     modal.style.display = 'flex';
     setTimeout(() => document.getElementById('mobSearch').focus(), 100);
+    
+    // Render the map in the split-view modal based on selected map
+    if (typeof MapViewer !== 'undefined') {
+        const mapSelect = document.getElementById('inputMapId');
+        if (mapSelect && mapSelect.value) {
+            MapViewer.render(parseInt(mapSelect.value));
+        } else if (state.currentMapId !== undefined) {
+            MapViewer.render(state.currentMapId);
+        }
+    }
 }
 
 function closeSpawnModal() {
@@ -1094,7 +1104,7 @@ function closeMobDropdown(e) {
     }
 }
 
-function saveSpawn() {
+function saveSpawn(fromMap = false) {
     if (currentMobId === null) {
         showToast('Selecciona un monstruo o NPC', 'warning');
         return;
@@ -1128,11 +1138,13 @@ function saveSpawn() {
         spawn.quantity = 1;
     }
 
-    if (state.editingId) {
+    if (state.editingId && !fromMap) {
         const idx = state.spawns.findIndex(s => s._id === state.editingId);
         if (idx >= 0) state.spawns[idx] = spawn;
         showToast('Spawn actualizado correctamente', 'success');
     } else {
+        // If fromMap but we were editing, we actually create a NEW spawn at the new coords!
+        if (fromMap) spawn._id = generateId(); 
         state.spawns.push(spawn);
         showToast(`${getMonsterName(currentMobId)} agregado a ${getMapName(mapId)}`, 'success');
     }
@@ -1141,18 +1153,15 @@ function saveSpawn() {
     populateMapFilter();
     renderTable();
     
-    const fastMode = document.getElementById('fastModeToggle');
-    const isFastMode = fastMode && fastMode.checked;
-    
-    if (isFastMode) {
-        // Just hide modal, keep mob selected for the next fast click
-        document.getElementById('modalSpawn').style.display = 'none';
+    if (fromMap) {
+        // Keep modal open, keep mob selected, ready for next click
         state.editingId = null;
     } else {
+        // Manual save closes the modal
         closeSpawnModal();
     }
     
-    if (typeof MapViewer !== 'undefined') MapViewer.render();
+    if (typeof MapViewer !== 'undefined') MapViewer.render(mapId);
 }
 
 // ─────────────────────────────────────────
