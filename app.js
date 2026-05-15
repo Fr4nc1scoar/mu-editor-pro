@@ -1741,7 +1741,7 @@ function populateFastMobSelect() {
 }
 
 // Start
-document.addEventListener('DOMContentLoaded', init);
+// document.addEventListener('DOMContentLoaded', init); // Handled by auth.js now
 
 // ═══════════════════════════════════════════════════════════════════════
 // MONSTER STATS EDITOR

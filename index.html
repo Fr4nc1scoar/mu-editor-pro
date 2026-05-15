@@ -1,17 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MuEditor Pro v2 — Monster Set Base Editor</title>
     <meta name="description" content="Editor profesional para archivos MonsterSetBase.txt de MU Online Season 6">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=14">
 </head>
+
 <body>
-    <!-- ═══════════════════════ HEADER ═══════════════════════ -->
-    <header id="app-header">
+    <!-- ═══════════════════════ LOGIN SCREEN ═══════════════════════ -->
+    <div id="login-screen" class="login-container">
+        <div class="login-box">
+            <div class="login-logo">
+                <div class="logo-icon">⚔</div>
+                <h1>MuEditor <span class="accent">Pro</span></h1>
+            </div>
+            <h2>Iniciar Sesión</h2>
+            <p class="login-subtitle">Ingresa tus credenciales para acceder al editor profesional.</p>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Correo Electrónico</label>
+                    <input type="email" id="loginEmail" required placeholder="tu@correo.com">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••">
+                </div>
+                <div id="loginError" class="login-error" style="display: none;"></div>
+                <button type="submit" class="btn btn-primary btn-block" id="btnLogin">
+                    <span class="btn-text">Ingresar al Editor</span>
+                    <span class="btn-loader" style="display: none;">⏳</span>
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                ¿No tienes una licencia? <a href="https://t.me/tu_usuario" target="_blank">Contactar al administrador</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════ APP CONTENT ═══════════════════════ -->
+    <div id="app-content" style="display: none;">
+        <!-- ═══════════════════════ HEADER ═══════════════════════ -->
+        <header id="app-header">
         <div class="header-left">
             <div class="logo">
                 <div class="logo-icon">⚔</div>
@@ -26,7 +64,8 @@
                 <span class="file-icon">📄</span>
                 <span class="file-name" id="currentFileName">Sin archivo cargado</span>
                 <span class="file-badge" id="fileBadge" style="display:none">Modificado</span>
-                <button class="file-clear-btn" id="btnClearFile" title="Limpiar archivo y empezar de cero" style="display:none">✕</button>
+                <button class="file-clear-btn" id="btnClearFile" title="Limpiar archivo y empezar de cero"
+                    style="display:none">✕</button>
             </div>
         </div>
         <div class="header-right">
@@ -48,6 +87,9 @@
                     <span class="stat-value" id="statTotal">0</span>
                 </div>
             </div>
+            <button class="btn btn-secondary btn-sm" onclick="logout()" style="margin-left: 15px; background: rgba(255,255,255,0.05); height: 32px; padding: 0 12px; font-size: 12px;">
+                <span>Cerrar Sesión</span> 🚪
+            </button>
         </div>
     </header>
 
@@ -61,334 +103,354 @@
     <!-- ═══════════════════════ TAB: SPAWNS ═══════════════════════ -->
     <div id="tabSpawns" class="tab-content active" style="display:flex">
 
-    <!-- ═══════════════════════ TOOLBAR ═══════════════════════ -->
-    <nav id="toolbar">
-        <div class="toolbar-group">
-            <button class="btn btn-outline" id="btnNewFile" title="Nuevo archivo (limpiar todo)">
-                <span class="btn-icon">🆕</span>
-                <span class="btn-label">Nuevo</span>
-            </button>
-            <button class="btn btn-primary" id="btnImport" title="Importar archivo .txt (Ctrl+O)">
-                <span class="btn-icon">📂</span>
-                <span class="btn-label">Importar</span>
-            </button>
-            <button class="btn btn-success" id="btnExport" title="Guardar cambios (Ctrl+S)">
-                <span class="btn-icon">💾</span>
-                <span class="btn-label" id="exportLabel">Guardar</span>
-            </button>
-            <div class="toolbar-divider"></div>
-            <button class="btn btn-accent" id="btnAddSpawn" title="Agregar spawn (Ctrl+N)">
-                <span class="btn-icon">➕</span>
-                <span class="btn-label">Agregar Spawn</span>
-            </button>
-            <button class="btn btn-danger" id="btnDeleteSelected" title="Eliminar seleccionados" disabled>
-                <span class="btn-icon">🗑️</span>
-                <span class="btn-label">Eliminar</span>
-            </button>
-            <button class="btn btn-outline" id="btnDuplicate" title="Duplicar seleccionados" disabled>
-                <span class="btn-icon">📋</span>
-                <span class="btn-label">Duplicar</span>
-            </button>
-            <div class="toolbar-divider"></div>
-            <button class="btn btn-outline" id="btnTogglePreviewToolbar" title="Mostrar/ocultar vista previa">
-                <span class="btn-icon">📝</span>
-                <span class="btn-label">Vista Previa</span>
-            </button>
-        </div>
-        <div class="toolbar-group">
-            <div class="search-box">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" placeholder="Buscar monstruo, ID o posición...">
-                <button class="search-clear" id="searchClear" title="Limpiar búsqueda">✕</button>
+        <!-- ═══════════════════════ TOOLBAR ═══════════════════════ -->
+        <nav id="toolbar">
+            <div class="toolbar-group">
+                <button class="btn btn-outline" id="btnNewFile" title="Nuevo archivo (limpiar todo)">
+                    <span class="btn-icon">🆕</span>
+                    <span class="btn-label">Nuevo</span>
+                </button>
+                <button class="btn btn-primary" id="btnImport" title="Importar archivo .txt (Ctrl+O)">
+                    <span class="btn-icon">📂</span>
+                    <span class="btn-label">Importar</span>
+                </button>
+                <button class="btn btn-success" id="btnExport" title="Guardar cambios (Ctrl+S)">
+                    <span class="btn-icon">💾</span>
+                    <span class="btn-label" id="exportLabel">Guardar</span>
+                </button>
+                <div class="toolbar-divider"></div>
+                <button class="btn btn-accent" id="btnAddSpawn" title="Agregar spawn (Ctrl+N)">
+                    <span class="btn-icon">➕</span>
+                    <span class="btn-label">Agregar Spawn</span>
+                </button>
+                <button class="btn btn-danger" id="btnDeleteSelected" title="Eliminar seleccionados" disabled>
+                    <span class="btn-icon">🗑️</span>
+                    <span class="btn-label">Eliminar</span>
+                </button>
+                <button class="btn btn-outline" id="btnDuplicate" title="Duplicar seleccionados" disabled>
+                    <span class="btn-icon">📋</span>
+                    <span class="btn-label">Duplicar</span>
+                </button>
+                <div class="toolbar-divider"></div>
+                <button class="btn btn-outline" id="btnTogglePreviewToolbar" title="Mostrar/ocultar vista previa">
+                    <span class="btn-icon">📝</span>
+                    <span class="btn-label">Vista Previa</span>
+                </button>
             </div>
-            <div class="filter-group">
-                <select id="filterSection" title="Filtrar por sección">
-                    <option value="all">Todas las secciones</option>
-                    <option value="0">🛡️ Sección 0 — NPCs</option>
-                    <option value="1">👾 Sección 1 — Spots</option>
-                    <option value="2">🐉 Sección 2 — Monstruos</option>
-                </select>
-                <select id="filterMap" title="Filtrar por mapa">
-                    <option value="all">Todos los mapas</option>
-                </select>
-            </div>
-            <button class="btn btn-outline" id="btnHelp" title="Instrucciones de uso">
-                <span class="btn-icon">❓</span>
-                <span class="btn-label">Ayuda</span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
-    <main id="mainContent">
-        <!-- WELCOME SCREEN -->
-        <div id="welcomeScreen" class="welcome-screen">
-            <div class="welcome-content">
-                <div class="welcome-icon">⚔️</div>
-                <h2>Bienvenido a MuEditor Pro</h2>
-                <p>Importa un archivo MonsterSetBase para comenzar a editar,<br>o crea un nuevo spawn desde cero.</p>
-                <div class="welcome-actions">
-                    <button class="btn btn-primary btn-lg" id="btnWelcomeImport">
-                        <span class="btn-icon">📂</span> Importar Archivo
-                    </button>
-                    <button class="btn btn-accent btn-lg" id="btnWelcomeNew">
-                        <span class="btn-icon">➕</span> Nuevo Spawn
-                    </button>
+            <div class="toolbar-group">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Buscar monstruo, ID o posición...">
+                    <button class="search-clear" id="searchClear" title="Limpiar búsqueda">✕</button>
                 </div>
-                <div class="welcome-hint">
-                    <p>💡 Soporta archivos de <strong>MonsterSetBase/</strong> con secciones 0, 1 y 2</p>
+                <div class="filter-group">
+                    <select id="filterSection" title="Filtrar por sección">
+                        <option value="all">Todas las secciones</option>
+                        <option value="0">🛡️ Sección 0 — NPCs</option>
+                        <option value="1">👾 Sección 1 — Spots</option>
+                        <option value="2">🐉 Sección 2 — Monstruos</option>
+                    </select>
+                    <select id="filterMap" title="Filtrar por mapa">
+                        <option value="all">Todos los mapas</option>
+                    </select>
                 </div>
+                <button class="btn btn-outline" id="btnHelp" title="Instrucciones de uso">
+                    <span class="btn-icon">❓</span>
+                    <span class="btn-label">Ayuda</span>
+                </button>
             </div>
-        </div>
+        </nav>
 
-        <!-- CONTENT WRAPPER -->
-        <div id="contentWrapper" class="content-wrapper" style="display:none">
-            <!-- SPAWN TABLE -->
-            <div id="tableContainer" class="table-container">
-                <div class="table-header-bar">
-                    <label class="select-all-label">
-                        <input type="checkbox" id="selectAll">
-                        <span>Seleccionar todo</span>
-                    </label>
-                    <span class="table-count" id="tableCount">0 spawns</span>
-                </div>
-                
-                <div class="table-scroll">
-                    <table id="spawnTable" class="table-data">
-                        <thead>
-                            <tr>
-                                <th class="col-check"><input type="checkbox" id="selectAllHead"></th>
-                                <th class="col-section sortable" data-sort="section">Sec</th>
-                                <th class="col-id sortable" data-sort="mobId">Mob ID</th>
-                                <th class="col-name sortable" data-sort="name">Nombre</th>
-                                <th class="col-map sortable" data-sort="mapId">Mapa</th>
-                                <th class="col-range">Rango</th>
-                                <th class="col-pos">Pos / Área</th>
-                                <th class="col-dir">Dir</th>
-                                <th class="col-qty sortable" data-sort="quantity">Cant</th>
-                                <th class="col-actions">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="spawnTableBody">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- PREVIEW PANEL (bottom) -->
-        <div id="previewPanel" class="preview-panel" style="display:none">
-            <div class="preview-resize-handle" id="previewResizeHandle" title="Arrastra para ajustar altura"></div>
-            <div class="preview-header">
-                <h3>📝 Vista Previa del Archivo</h3>
-                <div class="preview-controls">
-                    <button class="btn btn-sm btn-outline" id="btnCopyPreview" title="Copiar al portapapeles">📋 Copiar</button>
-                    <button class="btn btn-sm btn-outline" id="btnHidePreview" title="Ocultar">✕</button>
-                </div>
-            </div>
-            <pre id="previewContent" class="preview-code"></pre>
-        </div>
-    </main>
-
-    <!-- ═══════════════════════ MODAL: ADD/EDIT SPAWN ═══════════════════════ -->
-    <div class="modal-overlay" id="modalSpawn" style="display:none">
-        <div class="modal modal-xl" id="spawnModal">
-            <div class="modal-header">
-                <h3 id="modalTitle">➕ Agregar Spawn / Súper Editor</h3>
-                <button class="modal-close" id="modalClose">✕</button>
-            </div>
-            <div class="modal-body modal-split">
-                <!-- LEFT SIDE: FORM -->
-                <div class="modal-form-side">
-                <!-- Section Type Selector -->
-                <div class="form-section">
-                    <label class="form-label">Tipo de Spawn</label>
-                    <div class="section-selector" id="sectionSelector">
-                        <button class="section-btn active" data-section="0" title="NPCs fijos como merchants, guards, trainers">
-                            <span class="section-btn-icon">🛡️</span>
-                            <span class="section-btn-title">NPC</span>
-                            <span class="section-btn-desc">Posición fija</span>
+        <!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
+        <main id="mainContent">
+            <!-- WELCOME SCREEN -->
+            <div id="welcomeScreen" class="welcome-screen">
+                <div class="welcome-content">
+                    <div class="welcome-icon">⚔️</div>
+                    <h2>Bienvenido a MuEditor Pro</h2>
+                    <p>Importa un archivo MonsterSetBase para comenzar a editar,<br>o crea un nuevo spawn desde cero.
+                    </p>
+                    <div class="welcome-actions">
+                        <button class="btn btn-primary btn-lg" id="btnWelcomeImport">
+                            <span class="btn-icon">📂</span> Importar Archivo
                         </button>
-                        <button class="section-btn" data-section="1" title="Monstruos con área de spawn y cantidad">
-                            <span class="section-btn-icon">👾</span>
-                            <span class="section-btn-title">Spot</span>
-                            <span class="section-btn-desc">Área + Cantidad</span>
-                        </button>
-                        <button class="section-btn" data-section="2" title="Monstruos individuales en posición fija">
-                            <span class="section-btn-icon">🐉</span>
-                            <span class="section-btn-title">Monster</span>
-                            <span class="section-btn-desc">Posición fija</span>
+                        <button class="btn btn-accent btn-lg" id="btnWelcomeNew">
+                            <span class="btn-icon">➕</span> Nuevo Spawn
                         </button>
                     </div>
-                </div>
-
-                <!-- Monster Search -->
-                <div class="form-section">
-                    <label class="form-label" for="mobSearch">Monstruo / NPC</label>
-                    <div class="mob-search-container">
-                        <input type="text" id="mobSearch" class="form-input" placeholder="Buscar por nombre o ID..." autocomplete="off">
-                        <div class="mob-search-results" id="mobSearchResults" style="display:none"></div>
-                    </div>
-                    <div class="selected-mob" id="selectedMob" style="display:none">
-                        <span class="selected-mob-id" id="selectedMobId">000</span>
-                        <span class="selected-mob-name" id="selectedMobName">Bull Fighter</span>
-                        <span class="selected-mob-level" id="selectedMobLevel">Lv.6</span>
-                        <button class="selected-mob-clear" id="clearMob">✕</button>
+                    <div class="welcome-hint">
+                        <p>💡 Soporta archivos de <strong>MonsterSetBase/</strong> con secciones 0, 1 y 2</p>
                     </div>
                 </div>
-
-                <!-- Map Number -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label" for="inputMapId">Mapa</label>
-                        <select id="inputMapId" class="form-input"></select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="inputRange">Rango</label>
-                        <input type="text" id="inputRange" class="form-input" value="30" placeholder="00-30" maxlength="2">
-                    </div>
-                </div>
-
-                <!-- Position Fields: NPC / Monster (Section 0 & 2) -->
-                <div id="positionFields" class="form-section">
-                    <label class="form-label">Posición</label>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label-sm" for="inputPosX">X</label>
-                            <input type="number" id="inputPosX" class="form-input" min="0" max="255" value="128">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label-sm" for="inputPosY">Y</label>
-                            <input type="number" id="inputPosY" class="form-input" min="0" max="255" value="128">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Area Fields: Spots (Section 1) -->
-                <div id="areaFields" class="form-section" style="display:none">
-                    <label class="form-label">Área de Spawn</label>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label-sm" for="inputBeginX">Inicio X</label>
-                            <input type="number" id="inputBeginX" class="form-input" min="0" max="255" value="100">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label-sm" for="inputBeginY">Inicio Y</label>
-                            <input type="number" id="inputBeginY" class="form-input" min="0" max="255" value="100">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label-sm" for="inputEndX">Fin X</label>
-                            <input type="number" id="inputEndX" class="form-input" min="0" max="255" value="200">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label-sm" for="inputEndY">Fin Y</label>
-                            <input type="number" id="inputEndY" class="form-input" min="0" max="255" value="200">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Direction & Quantity -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label" for="inputDirection">Dirección</label>
-                        <select id="inputDirection" class="form-input">
-                            <option value="-1">-1 (Aleatorio)</option>
-                            <option value="00">00 (Sur-Oeste)</option>
-                            <option value="01">01 (Sur)</option>
-                            <option value="02">02 (Sur-Este)</option>
-                            <option value="03">03 (Este)</option>
-                            <option value="04">04 (Nor-Este)</option>
-                            <option value="05">05 (Norte)</option>
-                            <option value="06">06 (Nor-Oeste)</option>
-                            <option value="07">07 (Oeste)</option>
-                        </select>
-                    </div>
-                    <div class="form-group" id="quantityGroup" style="display:none">
-                        <label class="form-label" for="inputQuantity">Cantidad</label>
-                        <input type="number" id="inputQuantity" class="form-input" min="1" max="999" value="10">
-                    </div>
-                </div>
-
-                <!-- Comment -->
-                <div class="form-section">
-                    <label class="form-label" for="inputComment">Comentario <span class="form-hint">(se completa automáticamente)</span></label>
-                    <input type="text" id="inputComment" class="form-input" placeholder="//Nombre del monstruo">
-                </div>
-                </div> <!-- End modal-form-side -->
-                
-                <!-- RIGHT SIDE: MAP -->
-                <div class="modal-map-side">
-                    <!-- MAP VISUALIZER -->
-                    <div id="mapVisualizer" class="map-visualizer">
-                        <div class="map-controls">
-                            <span id="mapNameDisplay">Mapa: Lorencia</span>
-                            <label style="cursor:pointer; font-size:12px; margin-left:10px; color:var(--accent-color)" title="Añadir instantáneamente al hacer clic en el mapa">
-                                <input type="checkbox" id="fastModeToggle" checked> ⚡ Activo
-                            </label>
-                            <span id="mapHoverDisplay"></span>
-                            <span id="mapCoordsDisplay">X: 0, Y: 0</span>
-                        </div>
-                        <div class="map-canvas-wrapper">
-                            <canvas id="mapCanvas" width="512" height="512"></canvas>
-                            <div id="mapOverlay" class="map-overlay"></div>
-                            <div id="mapSelection" class="map-selection" style="display:none; position:absolute; background:rgba(10, 200, 255, 0.4); border:1px dashed #fff; pointer-events:none; z-index:20;"></div>
-                        </div>
-                    </div>
-                </div> <!-- End modal-map-side -->
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" id="btnCancelSpawn">Cerrar</button>
-                <button class="btn btn-accent" id="btnSaveSpawn">💾 Guardar Manualmente</button>
+
+            <!-- CONTENT WRAPPER -->
+            <div id="contentWrapper" class="content-wrapper" style="display:none">
+                <!-- SPAWN TABLE -->
+                <div id="tableContainer" class="table-container">
+                    <div class="table-header-bar">
+                        <label class="select-all-label">
+                            <input type="checkbox" id="selectAll">
+                            <span>Seleccionar todo</span>
+                        </label>
+                        <span class="table-count" id="tableCount">0 spawns</span>
+                    </div>
+
+                    <div class="table-scroll">
+                        <table id="spawnTable" class="table-data">
+                            <thead>
+                                <tr>
+                                    <th class="col-check"><input type="checkbox" id="selectAllHead"></th>
+                                    <th class="col-section sortable" data-sort="section">Sec</th>
+                                    <th class="col-id sortable" data-sort="mobId">Mob ID</th>
+                                    <th class="col-name sortable" data-sort="name">Nombre</th>
+                                    <th class="col-map sortable" data-sort="mapId">Mapa</th>
+                                    <th class="col-range">Rango</th>
+                                    <th class="col-pos">Pos / Área</th>
+                                    <th class="col-dir">Dir</th>
+                                    <th class="col-qty sortable" data-sort="quantity">Cant</th>
+                                    <th class="col-actions">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="spawnTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- PREVIEW PANEL (bottom) -->
+            <div id="previewPanel" class="preview-panel" style="display:none">
+                <div class="preview-resize-handle" id="previewResizeHandle" title="Arrastra para ajustar altura"></div>
+                <div class="preview-header">
+                    <h3>📝 Vista Previa del Archivo</h3>
+                    <div class="preview-controls">
+                        <button class="btn btn-sm btn-outline" id="btnCopyPreview" title="Copiar al portapapeles">📋
+                            Copiar</button>
+                        <button class="btn btn-sm btn-outline" id="btnHidePreview" title="Ocultar">✕</button>
+                    </div>
+                </div>
+                <pre id="previewContent" class="preview-code"></pre>
+            </div>
+        </main>
+
+        <!-- ═══════════════════════ MODAL: ADD/EDIT SPAWN ═══════════════════════ -->
+        <div class="modal-overlay" id="modalSpawn" style="display:none">
+            <div class="modal modal-xl" id="spawnModal">
+                <div class="modal-header">
+                    <h3 id="modalTitle">➕ Agregar Spawn / Súper Editor</h3>
+                    <button class="modal-close" id="modalClose">✕</button>
+                </div>
+                <div class="modal-body modal-split">
+                    <!-- LEFT SIDE: FORM -->
+                    <div class="modal-form-side">
+                        <!-- Section Type Selector -->
+                        <div class="form-section">
+                            <label class="form-label">Tipo de Spawn</label>
+                            <div class="section-selector" id="sectionSelector">
+                                <button class="section-btn active" data-section="0"
+                                    title="NPCs fijos como merchants, guards, trainers">
+                                    <span class="section-btn-icon">🛡️</span>
+                                    <span class="section-btn-title">NPC</span>
+                                    <span class="section-btn-desc">Posición fija</span>
+                                </button>
+                                <button class="section-btn" data-section="1"
+                                    title="Monstruos con área de spawn y cantidad">
+                                    <span class="section-btn-icon">👾</span>
+                                    <span class="section-btn-title">Spot</span>
+                                    <span class="section-btn-desc">Área + Cantidad</span>
+                                </button>
+                                <button class="section-btn" data-section="2"
+                                    title="Monstruos individuales en posición fija">
+                                    <span class="section-btn-icon">🐉</span>
+                                    <span class="section-btn-title">Monster</span>
+                                    <span class="section-btn-desc">Posición fija</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Monster Search -->
+                        <div class="form-section">
+                            <label class="form-label" for="mobSearch">Monstruo / NPC</label>
+                            <div class="mob-search-container">
+                                <input type="text" id="mobSearch" class="form-input"
+                                    placeholder="Buscar por nombre o ID..." autocomplete="off">
+                                <div class="mob-search-results" id="mobSearchResults" style="display:none"></div>
+                            </div>
+                            <div class="selected-mob" id="selectedMob" style="display:none">
+                                <span class="selected-mob-id" id="selectedMobId">000</span>
+                                <span class="selected-mob-name" id="selectedMobName">Bull Fighter</span>
+                                <span class="selected-mob-level" id="selectedMobLevel">Lv.6</span>
+                                <button class="selected-mob-clear" id="clearMob">✕</button>
+                            </div>
+                        </div>
+
+                        <!-- Map Number -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="inputMapId">Mapa</label>
+                                <select id="inputMapId" class="form-input"></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="inputRange">Rango</label>
+                                <input type="text" id="inputRange" class="form-input" value="30" placeholder="00-30"
+                                    maxlength="2">
+                            </div>
+                        </div>
+
+                        <!-- Position Fields: NPC / Monster (Section 0 & 2) -->
+                        <div id="positionFields" class="form-section">
+                            <label class="form-label">Posición</label>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label-sm" for="inputPosX">X</label>
+                                    <input type="number" id="inputPosX" class="form-input" min="0" max="255"
+                                        value="128">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label-sm" for="inputPosY">Y</label>
+                                    <input type="number" id="inputPosY" class="form-input" min="0" max="255"
+                                        value="128">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Area Fields: Spots (Section 1) -->
+                        <div id="areaFields" class="form-section" style="display:none">
+                            <label class="form-label">Área de Spawn</label>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label-sm" for="inputBeginX">Inicio X</label>
+                                    <input type="number" id="inputBeginX" class="form-input" min="0" max="255"
+                                        value="100">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label-sm" for="inputBeginY">Inicio Y</label>
+                                    <input type="number" id="inputBeginY" class="form-input" min="0" max="255"
+                                        value="100">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label-sm" for="inputEndX">Fin X</label>
+                                    <input type="number" id="inputEndX" class="form-input" min="0" max="255"
+                                        value="200">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label-sm" for="inputEndY">Fin Y</label>
+                                    <input type="number" id="inputEndY" class="form-input" min="0" max="255"
+                                        value="200">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Direction & Quantity -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="inputDirection">Dirección</label>
+                                <select id="inputDirection" class="form-input">
+                                    <option value="-1">-1 (Aleatorio)</option>
+                                    <option value="00">00 (Sur-Oeste)</option>
+                                    <option value="01">01 (Sur)</option>
+                                    <option value="02">02 (Sur-Este)</option>
+                                    <option value="03">03 (Este)</option>
+                                    <option value="04">04 (Nor-Este)</option>
+                                    <option value="05">05 (Norte)</option>
+                                    <option value="06">06 (Nor-Oeste)</option>
+                                    <option value="07">07 (Oeste)</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="quantityGroup" style="display:none">
+                                <label class="form-label" for="inputQuantity">Cantidad</label>
+                                <input type="number" id="inputQuantity" class="form-input" min="1" max="999" value="10">
+                            </div>
+                        </div>
+
+                        <!-- Comment -->
+                        <div class="form-section">
+                            <label class="form-label" for="inputComment">Comentario <span class="form-hint">(se completa
+                                    automáticamente)</span></label>
+                            <input type="text" id="inputComment" class="form-input" placeholder="//Nombre del monstruo">
+                        </div>
+                    </div> <!-- End modal-form-side -->
+
+                    <!-- RIGHT SIDE: MAP -->
+                    <div class="modal-map-side">
+                        <!-- MAP VISUALIZER -->
+                        <div id="mapVisualizer" class="map-visualizer">
+                            <div class="map-controls">
+                                <span id="mapNameDisplay">Mapa: Lorencia</span>
+                                <label
+                                    style="cursor:pointer; font-size:12px; margin-left:10px; color:var(--accent-color)"
+                                    title="Añadir instantáneamente al hacer clic en el mapa">
+                                    <input type="checkbox" id="fastModeToggle" checked> ⚡ Activo
+                                </label>
+                                <span id="mapHoverDisplay"></span>
+                                <span id="mapCoordsDisplay">X: 0, Y: 0</span>
+                            </div>
+                            <div class="map-canvas-wrapper">
+                                <canvas id="mapCanvas" width="512" height="512"></canvas>
+                                <div id="mapOverlay" class="map-overlay"></div>
+                                <div id="mapSelection" class="map-selection"
+                                    style="display:none; position:absolute; background:rgba(10, 200, 255, 0.4); border:1px dashed #fff; pointer-events:none; z-index:20;">
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- End modal-map-side -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="btnCancelSpawn">Cerrar</button>
+                    <button class="btn btn-accent" id="btnSaveSpawn">💾 Guardar Manualmente</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- ═══════════════════════ MODAL: IMPORT ═══════════════════════ -->
-    <div class="modal-overlay" id="modalImport" style="display:none">
-        <div class="modal modal-import">
-            <div class="modal-header">
-                <h3>📂 Importar MonsterSetBase</h3>
-                <button class="modal-close" id="importClose">✕</button>
-            </div>
-            <div class="modal-body">
-                <div class="import-tabs">
-                    <button class="import-tab active" data-tab="file">📄 Archivo</button>
-                    <button class="import-tab" data-tab="paste">📋 Pegar Texto</button>
+        <!-- ═══════════════════════ MODAL: IMPORT ═══════════════════════ -->
+        <div class="modal-overlay" id="modalImport" style="display:none">
+            <div class="modal modal-import">
+                <div class="modal-header">
+                    <h3>📂 Importar MonsterSetBase</h3>
+                    <button class="modal-close" id="importClose">✕</button>
                 </div>
-                <div id="importFile" class="import-content">
-                    <div class="drop-zone" id="dropZone">
-                        <div class="drop-zone-icon">📁</div>
-                        <p>Arrastra un archivo .txt aquí</p>
-                        <p class="drop-zone-hint">o haz clic para seleccionar</p>
-                        <input type="file" id="fileInput" accept=".txt" style="display:none">
+                <div class="modal-body">
+                    <div class="import-tabs">
+                        <button class="import-tab active" data-tab="file">📄 Archivo</button>
+                        <button class="import-tab" data-tab="paste">📋 Pegar Texto</button>
+                    </div>
+                    <div id="importFile" class="import-content">
+                        <div class="drop-zone" id="dropZone">
+                            <div class="drop-zone-icon">📁</div>
+                            <p>Arrastra un archivo .txt aquí</p>
+                            <p class="drop-zone-hint">o haz clic para seleccionar</p>
+                            <input type="file" id="fileInput" accept=".txt" style="display:none">
+                        </div>
+                    </div>
+                    <div id="importPaste" class="import-content" style="display:none">
+                        <textarea id="pasteInput" class="form-textarea"
+                            placeholder="Pega el contenido del archivo MonsterSetBase aquí..." rows="12"></textarea>
+                    </div>
+                    <div class="import-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="importReplace" checked>
+                            <span>Reemplazar datos actuales</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="importDetectMap" checked>
+                            <span>Detectar mapa del nombre del archivo</span>
+                        </label>
                     </div>
                 </div>
-                <div id="importPaste" class="import-content" style="display:none">
-                    <textarea id="pasteInput" class="form-textarea" placeholder="Pega el contenido del archivo MonsterSetBase aquí..." rows="12"></textarea>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="btnCancelImport">Cancelar</button>
+                    <button class="btn btn-primary" id="btnConfirmImport">📂 Importar</button>
                 </div>
-                <div class="import-options">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="importReplace" checked>
-                        <span>Reemplazar datos actuales</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="importDetectMap" checked>
-                        <span>Detectar mapa del nombre del archivo</span>
-                    </label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" id="btnCancelImport">Cancelar</button>
-                <button class="btn btn-primary" id="btnConfirmImport">📂 Importar</button>
             </div>
         </div>
-    </div>
 
-    <!-- ═══════════════════════ FOOTER BRANDING ═══════════════════════ -->
-    <footer id="app-footer">
-        <span>Creado con <span class="heart">❤️</span> por <a href="https://picodeweb.vercel.app" target="_blank" rel="noopener"><strong>Picode</strong></a></span>
-    </footer>
+        <!-- ═══════════════════════ FOOTER BRANDING ═══════════════════════ -->
+        <footer id="app-footer">
+            <span>Creado con <span class="heart">❤️</span> por <a href="https://picodeweb.vercel.app" target="_blank"
+                    rel="noopener"><strong>Picode</strong></a></span>
+        </footer>
 
     </div><!-- END tabSpawns -->
 
@@ -412,7 +474,8 @@
                     <span class="btn-label">Agregar</span>
                 </button>
                 <div class="toolbar-divider"></div>
-                <button class="btn btn-danger" id="btnClearMonster" title="Cerrar archivo Monster.txt" style="display:none">
+                <button class="btn btn-danger" id="btnClearMonster" title="Cerrar archivo Monster.txt"
+                    style="display:none">
                     <span class="btn-icon">✕</span>
                     <span class="btn-label">Cerrar archivo</span>
                 </button>
@@ -445,7 +508,8 @@
                     <p>Edita HP, daño, defensa, tiempo de respawn y más de cada monstruo.</p>
                     <p class="welcome-path">📁 Archivo: <code>MuServer\Data\Monster\Monster.txt</code></p>
                     <div class="welcome-actions">
-                        <button class="btn btn-primary btn-lg" id="btnMonsterWelcomeImport">📂 Importar Monster.txt</button>
+                        <button class="btn btn-primary btn-lg" id="btnMonsterWelcomeImport">📂 Importar
+                            Monster.txt</button>
                     </div>
                 </div>
             </div>
@@ -483,7 +547,8 @@
 
         <!-- Footer for Monster Stats -->
         <footer id="app-footer-m" class="app-footer-clone">
-            <span>Creado con <span class="heart">❤️</span> por <a href="https://picodeweb.vercel.app" target="_blank" rel="noopener"><strong>Picode</strong></a></span>
+            <span>Creado con <span class="heart">❤️</span> por <a href="https://picodeweb.vercel.app" target="_blank"
+                    rel="noopener"><strong>Picode</strong></a></span>
         </footer>
     </div><!-- END tabMonsterStats -->
 
@@ -516,10 +581,12 @@
                     <div class="welcome-icon">🎁</div>
                     <h2>Event Bags (Cajas y Bosses)</h2>
                     <p>Configura qué items sueltan las cajas y los Bosses (Kundun, Red Dragon, etc).</p>
-                    <p class="welcome-path" style="margin-bottom: 5px;">📁 Bosses: <code>MuServer\Data\EventItemBag\Monster\</code></p>
+                    <p class="welcome-path" style="margin-bottom: 5px;">📁 Bosses:
+                        <code>MuServer\Data\EventItemBag\Monster\</code></p>
                     <p class="welcome-path">📁 Cajas: <code>MuServer\Data\EventItemBag\Item\</code></p>
                     <div class="welcome-actions">
-                        <button class="btn btn-primary btn-lg" id="btnBossWelcomeImport">📂 Seleccionar archivo .txt</button>
+                        <button class="btn btn-primary btn-lg" id="btnBossWelcomeImport">📂 Seleccionar archivo
+                            .txt</button>
                     </div>
                 </div>
             </div>
@@ -531,7 +598,8 @@
                     <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:12px;">
                         <div>
                             <h3 id="bossDropTitle" class="boss-title">🎁 Nombre Event/Boss</h3>
-                            <div style="font-size:12px; color:var(--text-muted);">Configuración general del comportamiento de drop.</div>
+                            <div style="font-size:12px; color:var(--text-muted);">Configuración general del
+                                comportamiento de drop.</div>
                         </div>
                     </div>
                     <div class="boss-config-grid">
@@ -578,7 +646,8 @@
                     <div class="table-header-bar">
                         <span id="bossItemCount">0 items en el loot table</span>
                         <div>
-                            <button class="btn btn-danger btn-sm" id="btnClearBossItems" style="margin-right:8px; opacity:0.8;">🗑️ Vaciar Tabla</button>
+                            <button class="btn btn-danger btn-sm" id="btnClearBossItems"
+                                style="margin-right:8px; opacity:0.8;">🗑️ Vaciar Tabla</button>
                             <button class="btn btn-accent btn-sm" id="btnAddBossItem">➕ Agregar Item</button>
                         </div>
                     </div>
@@ -605,7 +674,8 @@
         </main>
 
         <footer class="app-footer-clone">
-            <span>Creado con <span class="heart">❤️</span> por <a href="https://picodeweb.vercel.app" target="_blank" rel="noopener"><strong>Picode</strong></a></span>
+            <span>Creado con <span class="heart">❤️</span> por <a href="https://picodeweb.vercel.app" target="_blank"
+                    rel="noopener"><strong>Picode</strong></a></span>
         </footer>
     </div><!-- END tabBossDrops -->
 
@@ -617,10 +687,12 @@
                 <button class="modal-close" id="bossItemModalClose">✕</button>
             </div>
             <div class="modal-body">
-                <div id="biItemPreviewBox" style="background:var(--bg-deep); padding:10px; border-radius:8px; margin-bottom:15px; border:1px solid var(--gold-dim); display:flex; align-items:center; gap:10px;">
+                <div id="biItemPreviewBox"
+                    style="background:var(--bg-deep); padding:10px; border-radius:8px; margin-bottom:15px; border:1px solid var(--gold-dim); display:flex; align-items:center; gap:10px;">
                     <div style="font-size:24px;">📦</div>
                     <div>
-                        <div id="biItemNamePreview" style="font-weight:700; color:var(--gold); font-size:16px;">Selecciona Categ. y Tipo</div>
+                        <div id="biItemNamePreview" style="font-weight:700; color:var(--gold); font-size:16px;">
+                            Selecciona Categ. y Tipo</div>
                         <div id="biItemIDPreview" style="font-size:11px; color:var(--text-muted);">ID: ? - ?</div>
                     </div>
                 </div>
@@ -628,10 +700,11 @@
                     <!-- Search Dropdown -->
                     <div class="field-group" style="grid-column: span 2; position: relative;">
                         <label>🔍 Buscar o Seleccionar Ítem</label>
-                        <input type="text" id="biItemSearch" class="form-input" placeholder="Ej. Bone Blade, 0-22..." autocomplete="off">
+                        <input type="text" id="biItemSearch" class="form-input" placeholder="Ej. Bone Blade, 0-22..."
+                            autocomplete="off">
                         <div id="biItemDropdown" class="custom-dropdown" style="display:none;"></div>
                     </div>
-                    
+
                     <!-- Hidden IDs -->
                     <div style="display:none;">
                         <input type="number" id="biSection" value="0">
@@ -646,16 +719,25 @@
                         <label>Lvl Máximo</label>
                         <input type="number" id="biMaxLevel" min="0" value="4">
                     </div>
-                    <div id="kundunHint" style="grid-column: span 2; display:none; background: rgba(240, 178, 50, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 3px solid var(--gold); font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">
-                        <strong style="color:var(--gold);">💡 Tip para Kundun:</strong> Para que caiga una Kundun, ajusta ambos niveles: <strong>+7</strong>=Kundun 1, <strong>+8</strong>=Kundun 2, <strong>+9</strong>=Kundun 3, <strong>+10</strong>=Kundun 4, <strong>+11</strong>=Kundun 5.
+                    <div id="kundunHint"
+                        style="grid-column: span 2; display:none; background: rgba(240, 178, 50, 0.1); padding: 8px 12px; border-radius: 4px; border-left: 3px solid var(--gold); font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">
+                        <strong style="color:var(--gold);">💡 Tip para Kundun:</strong> Para que caiga una Kundun,
+                        ajusta ambos niveles: <strong>+7</strong>=Kundun 1, <strong>+8</strong>=Kundun 2,
+                        <strong>+9</strong>=Kundun 3, <strong>+10</strong>=Kundun 4, <strong>+11</strong>=Kundun 5.
                     </div>
                     <div class="field-group">
                         <label>Skill</label>
-                        <select id="biSkill"><option value="0">No</option><option value="1">Sí</option></select>
+                        <select id="biSkill">
+                            <option value="0">No</option>
+                            <option value="1">Sí</option>
+                        </select>
                     </div>
                     <div class="field-group">
                         <label>Luck</label>
-                        <select id="biLuck"><option value="0">No</option><option value="1">Sí</option></select>
+                        <select id="biLuck">
+                            <option value="0">No</option>
+                            <option value="1">Sí</option>
+                        </select>
                     </div>
                     <div class="field-group">
                         <label>Opción (+4/+28)</label>
@@ -663,7 +745,8 @@
                     </div>
                     <div class="field-group">
                         <label>Excelente</label>
-                        <input type="number" id="biExcellent" min="0" value="0" title="0=No, 1=1 Opción, 2=2 Opciones, etc.">
+                        <input type="number" id="biExcellent" min="0" value="0"
+                            title="0=No, 1=1 Opción, 2=2 Opciones, etc.">
                     </div>
                 </div>
             </div>
@@ -819,18 +902,23 @@
 
                 <div class="help-section">
                     <h4>🎮 ¿Qué es MuEditor Pro?</h4>
-                    <p>Editor visual para los archivos <strong>MonsterSetBase</strong> de tu servidor MU Online Season 6. Te permite agregar, editar y eliminar monstruos, NPCs y spots de cada mapa de forma cómoda.</p>
+                    <p>Editor visual para los archivos <strong>MonsterSetBase</strong> de tu servidor MU Online Season
+                        6. Te permite agregar, editar y eliminar monstruos, NPCs y spots de cada mapa de forma cómoda.
+                    </p>
                 </div>
 
                 <div class="help-section">
                     <h4>📂 Paso 1 — Importar un archivo</h4>
                     <ol>
                         <li>Click en <strong>📂 Importar</strong></li>
-                        <li>Selecciona el archivo del mapa que quieres editar, por ejemplo: <code>000 - Lorencia.txt</code></li>
-                        <li>Los archivos están en la carpeta del servidor: <code>MuServer\Data\MonsterSetBase\</code></li>
+                        <li>Selecciona el archivo del mapa que quieres editar, por ejemplo:
+                            <code>000 - Lorencia.txt</code></li>
+                        <li>Los archivos están en la carpeta del servidor: <code>MuServer\Data\MonsterSetBase\</code>
+                        </li>
                         <li>También puedes importar archivos vacíos (como Stadium) para crear spawns desde cero</li>
                     </ol>
-                    <div class="help-tip">💡 El editor recuerda la ubicación del archivo original. Al guardar, se sobreescribe directamente.</div>
+                    <div class="help-tip">💡 El editor recuerda la ubicación del archivo original. Al guardar, se
+                        sobreescribe directamente.</div>
                 </div>
 
                 <div class="help-section">
@@ -867,7 +955,8 @@
                     <h4>✏️ Paso 3 — Editar o Eliminar</h4>
                     <ul>
                         <li><strong>✏️ Editar</strong>: Click en el lápiz de la fila, o doble-click en la fila</li>
-                        <li><strong>🗑️ Eliminar</strong>: Click en la papelera, o selecciona varios y click "Eliminar"</li>
+                        <li><strong>🗑️ Eliminar</strong>: Click en la papelera, o selecciona varios y click "Eliminar"
+                        </li>
                         <li><strong>📋 Duplicar</strong>: Crea una copia del spawn seleccionado</li>
                     </ul>
                 </div>
@@ -875,8 +964,10 @@
                 <div class="help-section">
                     <h4>💾 Paso 4 — Guardar</h4>
                     <ul>
-                        <li>Si importaste un archivo: <strong>💾 Guardar</strong> sobreescribe el archivo original directamente</li>
-                        <li>Si creaste desde cero: <strong>💾 Descargar</strong> genera el archivo con el nombre del mapa</li>
+                        <li>Si importaste un archivo: <strong>💾 Guardar</strong> sobreescribe el archivo original
+                            directamente</li>
+                        <li>Si creaste desde cero: <strong>💾 Descargar</strong> genera el archivo con el nombre del
+                            mapa</li>
                         <li>El archivo se guarda con el formato correcto para tu servidor</li>
                     </ul>
                     <div class="help-tip">💡 Usa Chrome o Edge para que el guardado directo funcione.</div>
@@ -895,17 +986,33 @@
                 <div class="help-section">
                     <h4>⌨️ Atajos de Teclado</h4>
                     <table class="help-table help-shortcuts">
-                        <tr><td><kbd>Ctrl</kbd> + <kbd>N</kbd></td><td>Nuevo spawn</td></tr>
-                        <tr><td><kbd>Ctrl</kbd> + <kbd>O</kbd></td><td>Importar archivo</td></tr>
-                        <tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td>Guardar / Exportar</td></tr>
-                        <tr><td><kbd>Esc</kbd></td><td>Cerrar modal</td></tr>
-                        <tr><td><kbd>Doble click</kbd></td><td>Editar un spawn</td></tr>
+                        <tr>
+                            <td><kbd>Ctrl</kbd> + <kbd>N</kbd></td>
+                            <td>Nuevo spawn</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>Ctrl</kbd> + <kbd>O</kbd></td>
+                            <td>Importar archivo</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>Ctrl</kbd> + <kbd>S</kbd></td>
+                            <td>Guardar / Exportar</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>Esc</kbd></td>
+                            <td>Cerrar modal</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>Doble click</kbd></td>
+                            <td>Editar un spawn</td>
+                        </tr>
                     </table>
                 </div>
 
                 <div class="help-section">
                     <h4>📝 Vista Previa</h4>
-                    <p>Click en <strong>📝 Vista Previa</strong> para ver el archivo generado en formato texto, tal como lo leerá el servidor. Puedes copiar el contenido con el botón 📋.</p>
+                    <p>Click en <strong>📝 Vista Previa</strong> para ver el archivo generado en formato texto, tal como
+                        lo leerá el servidor. Puedes copiar el contenido con el botón 📋.</p>
                 </div>
 
                 <div class="help-section">
@@ -932,10 +1039,18 @@
     <div id="toastContainer" class="toast-container"></div>
 
     <!-- Hidden file input for import -->
+    </div> <!-- FIN APP CONTENT -->
+
     <input type="file" id="hiddenFileInput" accept=".txt" style="display:none">
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="auth.js?v=15"></script>
     <script src="itemData.js"></script>
-    <script src="mapViewer.js?v=14"></script>
-    <script src="app.js?v=14"></script>
+    <script src="mapViewer.js?v=15"></script>
+    <script src="app.js?v=15"></script>
 </body>
 </html>
