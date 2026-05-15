@@ -68,7 +68,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Success - onAuthStateChanged will handle the UI
             })
             .catch((error) => {
-                loginError.textContent = "Error: Credenciales inválidas o acceso denegado.";
+                console.error("Firebase Login Error:", error.code, error.message);
+                
+                let msg = "Error: Credenciales inválidas.";
+                
+                if (error.code === 'auth/operation-not-allowed') {
+                    msg = "Error: Debes activar 'Correo/Contraseña' en el panel de Firebase > Authentication.";
+                } else if (error.code === 'auth/unauthorized-domain') {
+                    msg = "Error: Este dominio no está autorizado en Firebase > Authentication > Settings.";
+                } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    msg = "Error: Correo o contraseña incorrectos.";
+                } else {
+                    msg = "Error: " + error.message;
+                }
+
+                loginError.textContent = msg;
                 loginError.style.display = 'block';
                 
                 // Reset Button
