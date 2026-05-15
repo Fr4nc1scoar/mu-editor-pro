@@ -2003,14 +2003,18 @@ kbd {
 }
 
 .login-logo {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
 }
 
-.login-logo .logo-icon {
-    font-size: 64px;
-    margin-bottom: 10px;
-    display: block;
-    filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5));
+.login-logo .logo-img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.4));
 }
 
 .login-logo h1 {
@@ -2019,7 +2023,8 @@ kbd {
     margin: 0;
     color: #fff;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
+    line-height: 1;
 }
 
 .login-logo h1 .accent {
