@@ -1855,6 +1855,43 @@ kbd {
     font-family: var(--font-mono);
 }
 
+.map-zoom-controls {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    background: var(--bg-deep);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 2px;
+}
+
+.btn-zoom {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all var(--transition-fast);
+}
+
+.btn-zoom:hover {
+    background: var(--bg-hover);
+    color: var(--gold);
+}
+
+#btnZoomReset {
+    width: auto;
+    padding: 0 6px;
+    font-size: 11px;
+}
+
 .map-canvas-wrapper {
     position: relative;
     border: 3px solid var(--border-color);

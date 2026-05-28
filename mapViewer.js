@@ -10,6 +10,12 @@ const MapViewer = {
     currentMapId: 0,
     mapDataCache: {},
     scale: 2, // 256 * 2 = 512px canvas
+    zoom: 1,
+    panX: 0,
+    panY: 0,
+    isPanning: false,
+    panStartX: 0,
+    panStartY: 0,
     
     init() {
         this.canvas = document.getElementById('mapCanvas');
@@ -28,7 +34,75 @@ const MapViewer = {
         wrapper.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         wrapper.addEventListener('click', (e) => this.handleMapClick(e));
         
-        // Removed btnToggleMap since map is now in modal
+        // Prevent context menu on right click for panning
+        wrapper.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // Zoom Controls
+        wrapper.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 1.2 : 0.8;
+            this.setZoom(this.zoom * delta, e.clientX, e.clientY);
+        });
+        
+        const btnZoomIn = document.getElementById('btnZoomIn');
+        const btnZoomOut = document.getElementById('btnZoomOut');
+        const btnZoomReset = document.getElementById('btnZoomReset');
+        
+        if (btnZoomIn) btnZoomIn.addEventListener('click', () => {
+            const rect = wrapper.getBoundingClientRect();
+            this.setZoom(this.zoom * 1.5, rect.left + rect.width / 2, rect.top + rect.height / 2);
+        });
+        
+        if (btnZoomOut) btnZoomOut.addEventListener('click', () => {
+            const rect = wrapper.getBoundingClientRect();
+            this.setZoom(this.zoom / 1.5, rect.left + rect.width / 2, rect.top + rect.height / 2);
+        });
+        
+        if (btnZoomReset) btnZoomReset.addEventListener('click', () => {
+            this.zoom = 1;
+            this.panX = 0;
+            this.panY = 0;
+            this.updateTransform();
+        });
+    },
+
+    setZoom(newZoom, mouseX, mouseY) {
+        const wrapper = document.querySelector('.map-canvas-wrapper');
+        const rect = wrapper.getBoundingClientRect();
+        
+        // Clamp zoom
+        newZoom = Math.min(Math.max(1, newZoom), 5);
+        
+        // Calculate mouse position relative to wrapper
+        const x = mouseX - rect.left;
+        const y = mouseY - rect.top;
+        
+        // Adjust pan to zoom around mouse
+        const scaleChange = newZoom / this.zoom;
+        this.panX = x - (x - this.panX) * scaleChange;
+        this.panY = y - (y - this.panY) * scaleChange;
+        
+        this.zoom = newZoom;
+        this.updateTransform();
+    },
+
+    updateTransform() {
+        const zoomWrapper = document.getElementById('mapZoomWrapper');
+        if (zoomWrapper) {
+            // Constrain pan within bounds
+            const wrapper = document.querySelector('.map-canvas-wrapper');
+            const rect = wrapper.getBoundingClientRect();
+            
+            const maxPanX = 0;
+            const maxPanY = 0;
+            const minPanX = rect.width - (rect.width * this.zoom);
+            const minPanY = rect.height - (rect.height * this.zoom);
+            
+            this.panX = Math.min(maxPanX, Math.max(minPanX, this.panX));
+            this.panY = Math.min(maxPanY, Math.max(minPanY, this.panY));
+            
+            zoomWrapper.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.zoom})`;
+        }
     },
     
     getAttFileName(mapId) {
@@ -133,6 +207,16 @@ const MapViewer = {
     },
     
     handleMouseDown(e) {
+        if (e.button === 2 || e.button === 1) { // Right click or middle click for panning
+            e.preventDefault();
+            this.isPanning = true;
+            this.panStartX = e.clientX - this.panX;
+            this.panStartY = e.clientY - this.panY;
+            const wrapper = document.querySelector('.map-canvas-wrapper');
+            if (wrapper) wrapper.style.cursor = 'grabbing';
+            return;
+        }
+
         if (e.button !== 0) return; // Only left click
         e.preventDefault(); // Prevent native browser drag operations
         
@@ -164,6 +248,13 @@ const MapViewer = {
     },
     
     handleMouseUp(e) {
+        if (this.isPanning) {
+            this.isPanning = false;
+            const wrapper = document.querySelector('.map-canvas-wrapper');
+            if (wrapper) wrapper.style.cursor = 'crosshair';
+            return;
+        }
+
         if (!this.isDragging) return;
         this.isDragging = false;
         
@@ -229,6 +320,13 @@ const MapViewer = {
     },
     
     handleMouseMove(e) {
+        if (this.isPanning) {
+            this.panX = e.clientX - this.panStartX;
+            this.panY = e.clientY - this.panStartY;
+            this.updateTransform();
+            return;
+        }
+
         const rect = this.canvas.getBoundingClientRect();
         const scaleX = this.canvas.width / rect.width;
         const scaleY = this.canvas.height / rect.height;
