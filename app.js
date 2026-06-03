@@ -1101,6 +1101,7 @@ function closeMobDropdown(e) {
 }
 
 function saveSpawn(fromMap = false) {
+    const isFromMap = fromMap === true;
     if (currentMobId === null) {
         showToast('Selecciona un monstruo o NPC', 'warning');
         return;
@@ -1134,13 +1135,13 @@ function saveSpawn(fromMap = false) {
         spawn.quantity = 1;
     }
 
-    if (state.editingId && !fromMap) {
+    if (state.editingId && !isFromMap) {
         const idx = state.spawns.findIndex(s => s._id === state.editingId);
         if (idx >= 0) state.spawns[idx] = spawn;
         showToast('Spawn actualizado correctamente', 'success');
     } else {
         // If fromMap but we were editing, we actually create a NEW spawn at the new coords!
-        if (fromMap) spawn._id = generateId(); 
+        if (isFromMap) spawn._id = generateId(); 
         state.spawns.push(spawn);
         showToast(`${getMonsterName(currentMobId)} agregado a ${getMapName(mapId)}`, 'success');
     }
@@ -1149,7 +1150,7 @@ function saveSpawn(fromMap = false) {
     populateMapFilter();
     renderTable();
     
-    if (fromMap) {
+    if (isFromMap) {
         // Keep modal open, keep mob selected, ready for next click
         state.editingId = null;
     } else {
@@ -1467,7 +1468,7 @@ function initEvents() {
     // Spawn Modal
     document.getElementById('modalClose').addEventListener('click', closeSpawnModal);
     document.getElementById('btnCancelSpawn').addEventListener('click', closeSpawnModal);
-    document.getElementById('btnSaveSpawn').addEventListener('click', saveSpawn);
+    document.getElementById('btnSaveSpawn').addEventListener('click', () => saveSpawn(false));
     document.getElementById('clearMob').addEventListener('click', clearMobSelection);
 
     // Section selector

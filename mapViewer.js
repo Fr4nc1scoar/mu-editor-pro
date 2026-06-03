@@ -283,20 +283,9 @@ const MapViewer = {
         }
         
         // Sync modal tabs state so saveSpawn works correctly
-        const sectionBtns = document.querySelectorAll('.section-btn');
-        sectionBtns.forEach(btn => {
-            if (parseInt(btn.dataset.section) === 1) {
-                btn.classList.add('active');
-                const posFields = document.getElementById('positionFields');
-                const areaFields = document.getElementById('areaFields');
-                if (posFields && areaFields) {
-                    posFields.style.display = 'none';
-                    areaFields.style.display = 'block';
-                }
-            } else {
-                btn.classList.remove('active');
-            }
-        });
+        if (typeof setActiveSection === 'function') {
+            setActiveSection(1);
+        }
         
         const inputMap = document.getElementById('inputMapId');
         if (inputMap) inputMap.value = this.currentMapId;
